@@ -1,3 +1,6 @@
+from virtual_ssd_pkg.file_io import FileIO
+
+
 class VirtualSSD:
     def __init__(self):
         pass
@@ -15,7 +18,7 @@ class VirtualSSD:
             raise ValueError("INVALID COMMAND")
 
     def is_valid_write_command(self, cmd_list):
-        return len(cmd_list) == 4 and cmd_list[0:2] == ['ssd', 'W'] and\
+        return len(cmd_list) == 4 and cmd_list[0:2] == ['ssd', 'W'] and \
             self.valid_LBA(cmd_list[2]) and self.valid_value(cmd_list[3])
 
     def is_valid_read_command(self, cmd_list):
@@ -32,3 +35,10 @@ class VirtualSSD:
         if value.startswith('0x') and len(value) == 10:
             return True
         return False
+
+    def ssd_write(self, lba, data):
+        self.NAND_TXT = FileIO("nand.txt")
+        self.NAND_DATA = self.NAND_TXT.load()
+        self.NAND_DATA = data[2:] + self.NAND_DATA[8:]
+        self.NAND_TXT.save(self.NAND_DATA)
+
