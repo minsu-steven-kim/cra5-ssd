@@ -37,8 +37,12 @@ class VirtualSSD:
         return False
 
     def ssd_write(self, lba, data):
+        if (not self.valid_LBA(lba)) or (not self.valid_value(data)):
+            return
+
         self.NAND_TXT = FileIO("nand.txt")
         self.NAND_DATA = self.NAND_TXT.load()
+        lba = int(lba)
         self.NAND_DATA = self.NAND_DATA[ :lba * 9] + data[2:] + self.NAND_DATA[(lba+1)*9 - 1:]
         self.NAND_TXT.save(self.NAND_DATA)
 
