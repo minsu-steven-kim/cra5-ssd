@@ -88,3 +88,9 @@ class TestVirtualSSD(TestCase):
         self.virtual_ssd.ssd_write(FAKE_LBA, FAKE_DATA)
         expected = self.virtual_ssd.NAND_TXT.load()[FAKE_LBA*9:(FAKE_LBA+1)*9-1]
         self.assertEqual(expected, FAKE_RESULT)
+
+    def test_write_LBA_50(self):
+        FAKE_LBA = 50
+        self.virtual_ssd.ssd_write(FAKE_LBA, FAKE_DATA)
+        expected = self.virtual_ssd.NAND_TXT.load()[FAKE_LBA*9:(FAKE_LBA+1)*9-1]
+        self.assertEqual(expected, FAKE_RESULT)
