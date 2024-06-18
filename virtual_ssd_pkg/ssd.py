@@ -1,6 +1,17 @@
+import sys
+
+
 class VirtualSSD:
     def __init__(self):
-        pass
+        self.command = self.take_command()
+
+    def take_command(self):
+        try:
+            arguments = ['ssd'] + sys.argv[1:]
+            return self.parsing_command(' '.join(arguments))
+        except ValueError:
+            print('INVALID COMMAND')
+        return None
 
     def parsing_command(self, cmd):
         if type(cmd) != str:
@@ -15,7 +26,7 @@ class VirtualSSD:
             raise ValueError("INVALID COMMAND")
 
     def is_valid_write_command(self, cmd_list):
-        return len(cmd_list) == 4 and cmd_list[0:2] == ['ssd', 'W'] and\
+        return len(cmd_list) == 4 and cmd_list[0:2] == ['ssd', 'W'] and \
             self.valid_LBA(cmd_list[2]) and self.valid_value(cmd_list[3])
 
     def is_valid_read_command(self, cmd_list):
@@ -32,3 +43,7 @@ class VirtualSSD:
         if value.startswith('0x') and len(value) == 10:
             return True
         return False
+
+
+if __name__ == '__main__':
+    ssd = VirtualSSD()
