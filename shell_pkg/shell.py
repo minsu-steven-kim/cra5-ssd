@@ -5,6 +5,33 @@ class Shell:
     def __init__(self):
         self.__virtual_ssd_file_path = "../virtual_ssd_pkg/ssd.py"
 
+    def run(self):
+        while True:
+            print('> ', end='')
+            cmd, args = self.parse_command(input())
+            if cmd == 'exit':
+                break
+            else:
+                self.execute(cmd)
+
+    def parse_command(self, raw):
+        # TODO: implement
+        if raw == 'exit':
+            return 'exit', []
+        return 'invalid', []
+
+    def execute(self, cmd):
+        # TODO: implement
+        if cmd == 'help':
+            self.help()
+        else:
+            print('INVALID COMMAND')
+
+    def help(self):
+        # TODO: implement
+        print('help message')
+        pass
+
     def get_virtual_ssd_file_path(self):
         return self.__virtual_ssd_file_path
 
@@ -47,3 +74,8 @@ class Shell:
 
     def get_result_with_ssd(self):
         pass
+
+
+if __name__ == '__main__':
+    shell = Shell()
+    shell.run()
