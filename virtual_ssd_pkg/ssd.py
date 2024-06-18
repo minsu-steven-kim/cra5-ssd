@@ -43,5 +43,7 @@ class VirtualSSD:
             self.NAND_DATA = data[2:] + self.NAND_DATA[8:]
         if lba == 1:
             self.NAND_DATA =self.NAND_DATA[:9] + data[2:] + self.NAND_DATA[17:]
+        if lba == 2:
+            self.NAND_DATA =self.NAND_DATA[:18] + data[2:] + self.NAND_DATA[26:]
         self.NAND_TXT.save(self.NAND_DATA)
 
