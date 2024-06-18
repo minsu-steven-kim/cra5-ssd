@@ -2,6 +2,10 @@ from unittest import TestCase
 
 from virtual_ssd_pkg.ssd import VirtualSSD
 
+FAKE_DATA = '0xBAADEEEE'
+line_len = 11
+
+
 class TestVirtualSSD(TestCase):
     def setUp(self):
         self.virtual_ssd = VirtualSSD()
@@ -90,4 +94,30 @@ class TestVirtualSSD(TestCase):
 
         self.assertEqual(str(context.exception), "INVALID COMMAND")
 
+    def test_write_LBA_0(self):
+        FAKE_LBA = '0'
+        self.virtual_ssd.ssd_write(FAKE_LBA, FAKE_DATA)
+        FAKE_LBA = int(FAKE_LBA)
+        expected = self.virtual_ssd.NAND_TXT.load()[FAKE_LBA * line_len:(FAKE_LBA + 1) * line_len - 1]
+        self.assertEqual(expected, FAKE_DATA)
 
+    def test_write_LBA_1(self):
+        FAKE_LBA = '1'
+        self.virtual_ssd.ssd_write(FAKE_LBA, FAKE_DATA)
+        FAKE_LBA = int(FAKE_LBA)
+        expected = self.virtual_ssd.NAND_TXT.load()[FAKE_LBA * line_len:(FAKE_LBA + 1) * line_len - 1]
+        self.assertEqual(expected, FAKE_DATA)
+
+    def test_write_LBA_2(self):
+        FAKE_LBA = '2'
+        self.virtual_ssd.ssd_write(FAKE_LBA, FAKE_DATA)
+        FAKE_LBA = int(FAKE_LBA)
+        expected = self.virtual_ssd.NAND_TXT.load()[FAKE_LBA * line_len:(FAKE_LBA + 1) * line_len - 1]
+        self.assertEqual(expected, FAKE_DATA)
+
+    def test_write_LBA_50(self):
+        FAKE_LBA = '50'
+        self.virtual_ssd.ssd_write(FAKE_LBA, FAKE_DATA)
+        FAKE_LBA = int(FAKE_LBA)
+        expected = self.virtual_ssd.NAND_TXT.load()[FAKE_LBA * line_len:(FAKE_LBA + 1) * line_len - 1]
+        self.assertEqual(expected, FAKE_DATA)
