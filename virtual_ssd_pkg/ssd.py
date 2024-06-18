@@ -2,7 +2,7 @@ from virtual_ssd_pkg.file_io import FileIO
 
 
 import sys
-
+import re
 
 class VirtualSSD:
     def __init__(self):
@@ -43,9 +43,8 @@ class VirtualSSD:
         return False
 
     def valid_value(self, value):
-        if value.startswith('0x') and len(value) == 10:
-            return True
-        return False
+        pattern = r'0x[0-9A-F]{8}$'
+        return bool(re.match(pattern, value))
 
     def ssd_write(self, lba, data):
         if (not self.valid_LBA(lba)) or (not self.valid_value(data)):
