@@ -3,14 +3,14 @@ class VirtualSSD:
         pass
 
     def parsing_command(self, cmd):
-        if type(cmd) == str:
-            cmd_list = cmd.split(' ')
-            if self.is_valid_read_command(cmd_list):
-                return "READ"
-            elif self.is_valid_write_command(cmd_list):
-                return "WRITE"
-            else:
-                raise ValueError("INVALID COMMAND")
+        if type(cmd) != str:
+            raise ValueError("INVALID COMMAND")
+
+        cmd_list = cmd.split(' ')
+        if self.is_valid_read_command(cmd_list):
+            return "READ"
+        elif self.is_valid_write_command(cmd_list):
+            return "WRITE"
         else:
             raise ValueError("INVALID COMMAND")
 
