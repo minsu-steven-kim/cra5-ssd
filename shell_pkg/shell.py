@@ -45,6 +45,9 @@ class Shell:
 
     def call_virtual_ssd_write_cmd(self, lba: int, value: int):
         cmd = self.get_write_cmd_line(lba, value)
+        self.run_command(cmd)
+
+    def run_command(self, cmd):
         os.system(cmd)
 
     def read(self, param):

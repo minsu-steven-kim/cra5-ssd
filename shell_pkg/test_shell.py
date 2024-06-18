@@ -81,3 +81,13 @@ class TestShell(TestCase):
         result = self.vs.get_write_cmd_line(lba, value)
         answer = f"python {self.vs.get_virtual_ssd_file_path()} ssd W {lba} {value}"
         self.assertEqual(result, answer)
+
+    @patch.object(Shell, "run_command")
+    def test_check_call_write_cmd(self, mock):
+        mock = Shell()
+        lba = 10
+        value = 0xAAAABBBB
+        mock.write(lba, value)
+        cmd = mock.get_write_cmd_line(lba, value)
+        mock.run_command.assert_called_with(cmd)
+        self.assertEqual(1, mock.run_command.call_count)
