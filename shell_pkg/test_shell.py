@@ -31,7 +31,7 @@ class TestShell(TestCase):
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
-    def test_write_invalid_range_value(self):
+    def test_write_invalid_type_value(self):
         vs = Shell()
         with self.assertRaises(Exception) as context:
             vs.write(10, "0XFFFFFFFF")
