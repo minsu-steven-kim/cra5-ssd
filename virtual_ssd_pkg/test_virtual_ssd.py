@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from virtual_ssd_pkg.ssd import VirtualSSD
-FAKE_DATA = '0xBBDDBBBB'
+FAKE_DATA = '0xBBDDEEBB'
 FAKE_RESULT = FAKE_DATA[2:]
 
 class TestVirtualSSD(TestCase):
