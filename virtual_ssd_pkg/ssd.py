@@ -50,7 +50,8 @@ class VirtualSSD:
         return False
 
     def read(self, lba):
-        self.valid_LBA(lba)
+        if not self.valid_LBA(lba):
+            return
 
         nand_file_data = ['0x00000000' for _ in range(100)]
         nand_file_io = FileIO(self.nand_file)
