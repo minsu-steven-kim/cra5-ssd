@@ -92,3 +92,12 @@ class TestVirtualSSD(TestCase):
 
         mock_file.assert_any_call('result.txt', 'w')  # 파일 쓰기도 mock 확인
         mock_file.return_value.write.assert_called_once_with(result_read)
+
+    @patch('builtins.open', new_callable=mock_open, read_data='0x00000000\n0x11111111\n0x22222222\n')
+    def test_virtual_ssd_read_with_mocked_file(self, mock_file):
+        self.virtual_ssd.read('1')
+        mock_file.assert_any_call('nand.txt', 'r')
+        mock_file.assert_any_call('result.txt', 'w')
+
+
+
