@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from virtual_ssd import VirtualSSD
+from virtual_ssd_pkg.virtual_ssd import VirtualSSD
 
 class TestVirtualSSD(TestCase):
     def setUp(self):
