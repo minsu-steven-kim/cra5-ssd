@@ -16,3 +16,8 @@ class InvalidCommand(Command):
     def execute(self):
         print('INVALID COMMAND')
         return 0
+
+class ReadCommand(Command):
+    def execute(self):
+        self.send_cmd_to_ssd()
+        print(self.get_result_with_ssd())

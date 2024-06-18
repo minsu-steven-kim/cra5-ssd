@@ -20,6 +20,8 @@ class Shell:
             return InvalidCommand()
         elif args[0] == 'exit':
             return ExitCommand()
+        elif args[0] == 'read':
+            return
         else:
             return InvalidCommand()
 
@@ -68,7 +70,9 @@ class Shell:
     def run_command(self, cmd):
         os.system(cmd)
 
-    def read(self, param):
+    def read(self, lba):
+        if self.is_invalid_lba(lba):
+            raise Exception("INVALID COMMAND")
         self.send_cmd_to_ssd()
         print(self.get_result_with_ssd())
 
