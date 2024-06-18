@@ -1,7 +1,7 @@
-from .file_io import FileIO
-
+from file_io import FileIO
 
 import sys
+import re
 
 
 class VirtualSSD:
@@ -45,9 +45,18 @@ class VirtualSSD:
         return False
 
     def valid_value(self, value):
-        if value.startswith('0x') and len(value) == 10:
-            return True
-        return False
+        pattern = r'0x[0-9A-F]{8}$'
+        return bool(re.match(pattern, value))
+
+    def ssd_write(self, lba, data):
+        if (not self.valid_LBA(lba)) or (not self.valid_value(data)):
+            return
+
+        self.NAND_TXT = FileIO("nand.txt")
+        self.NAND_DATA = self.NAND_TXT.load()
+        lba = int(lba)
+        self.NAND_DATA = self.NAND_DATA[:lba * 11] + data + self.NAND_DATA[(lba + 1) * 11 - 1:]
+        self.NAND_TXT.save(self.NAND_DATA)
 
     def read(self, lba):
         if not self.valid_LBA(lba):
