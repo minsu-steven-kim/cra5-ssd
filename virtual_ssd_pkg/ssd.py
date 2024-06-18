@@ -1,11 +1,13 @@
-from virtual_ssd_pkg.file_io import FileIO
-
+from file_io import FileIO
 
 import sys
 import re
 
+
 class VirtualSSD:
     def __init__(self):
+        self.nand_file = 'nand.txt'
+        self.result_file = 'result.txt'
         self.command = self.take_command()
 
     def take_command(self):
@@ -55,6 +57,20 @@ class VirtualSSD:
         lba = int(lba)
         self.NAND_DATA = self.NAND_DATA[:lba * 11] + data + self.NAND_DATA[(lba + 1) * 11 - 1:]
         self.NAND_TXT.save(self.NAND_DATA)
+
+    def read(self, lba):
+        if not self.valid_LBA(lba):
+            return
+
+        nand_file_data = ['0x00000000' for _ in range(100)]
+        nand_file_io = FileIO(self.nand_file)
+        nand_file_data_raw = nand_file_io.load().strip().split('\n')
+
+        for i, line in enumerate(nand_file_data_raw):
+            nand_file_data[i] = line
+
+        with open(self.result_file, 'w') as f:
+            f.write(nand_file_data[int(lba)])
 
 
 if __name__ == '__main__':
