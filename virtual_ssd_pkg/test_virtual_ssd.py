@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from virtual_ssd_pkg.ssd import VirtualSSD
-FAKE_DATA = '0xBBDDEEBB'
+FAKE_DATA = '0xBBDDEEFF'
 FAKE_RESULT = FAKE_DATA[2:]
 
 class TestVirtualSSD(TestCase):
@@ -72,16 +72,19 @@ class TestVirtualSSD(TestCase):
         self.assertEqual("WRITE", self.virtual_ssd.parsing_command("ssd W 10 0x10000000"))
 
     def test_write_LBA_0(self):
-        self.virtual_ssd.ssd_write(0, FAKE_DATA)
-        expected = self.virtual_ssd.NAND_TXT.load()[:8]
+        FAKE_LBA = 0
+        self.virtual_ssd.ssd_write(FAKE_LBA, FAKE_DATA)
+        expected = self.virtual_ssd.NAND_TXT.load()[FAKE_LBA*9:(FAKE_LBA+1)*9-1]
         self.assertEqual(expected, FAKE_RESULT)
 
     def test_write_LBA_1(self):
-        self.virtual_ssd.ssd_write(1, FAKE_DATA)
-        expected = self.virtual_ssd.NAND_TXT.load()[9:17]
+        FAKE_LBA = 1
+        self.virtual_ssd.ssd_write(FAKE_LBA, FAKE_DATA)
+        expected = self.virtual_ssd.NAND_TXT.load()[FAKE_LBA*9:(FAKE_LBA+1)*9-1]
         self.assertEqual(expected, FAKE_RESULT)
 
     def test_write_LBA_2(self):
-        self.virtual_ssd.ssd_write(2, FAKE_DATA)
-        expected = self.virtual_ssd.NAND_TXT.load()[18:26]
+        FAKE_LBA = 2
+        self.virtual_ssd.ssd_write(FAKE_LBA, FAKE_DATA)
+        expected = self.virtual_ssd.NAND_TXT.load()[FAKE_LBA*9:(FAKE_LBA+1)*9-1]
         self.assertEqual(expected, FAKE_RESULT)
