@@ -4,8 +4,7 @@ class Shell:
 
     def read(self, param):
         self.send_cmd_to_ssd()
-        self.get_result_with_ssd()
-        pass
+        print(self.get_result_with_ssd())
 
     def send_cmd_to_ssd(self):
         pass
