@@ -1,5 +1,5 @@
 import sys
-
+import re
 
 class VirtualSSD:
     def __init__(self):
@@ -40,10 +40,8 @@ class VirtualSSD:
         return False
 
     def valid_value(self, value):
-        if value.startswith('0x') and len(value) == 10:
-            return True
-        return False
-
+        pattern = r'0x[0-9A-F]{8}$'
+        return bool(re.match(pattern, value))
 
 if __name__ == '__main__':
     ssd = VirtualSSD()
