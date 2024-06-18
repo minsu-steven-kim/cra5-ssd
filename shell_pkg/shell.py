@@ -11,6 +11,9 @@ class Shell:
     def set_virtual_ssd_file_path(self, file_path):
         self.__virtual_ssd_file_path = file_path
 
+    def get_write_cmd_line(self, lba, value):
+        return f"python {self.__virtual_ssd_file_path} ssd W {lba} {value}"
+
     def write(self, lba: int, value: int):
         if self.is_valid_parameter(lba, value):
             raise Exception("INVALID COMMAND")
@@ -41,7 +44,8 @@ class Shell:
         return False
 
     def call_virtual_ssd_write_cmd(self, lba: int, value: int):
-        pass
+        cmd = self.get_write_cmd_line(lba, value)
+        os.system(cmd)
 
     def read(self, param):
         self.send_cmd_to_ssd()

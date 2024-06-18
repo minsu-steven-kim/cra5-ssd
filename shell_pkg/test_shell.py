@@ -74,3 +74,10 @@ class TestShell(TestCase):
         mock.write(lba, value)
         self.assertEqual(1, mock.call_virtual_ssd_write_cmd.call_count, 1)
         mock.call_virtual_ssd_write_cmd.assert_called_with(lba, value)
+
+    def test_check_write_cmd_line(self):
+        lba = 10
+        value = 0xAAAABBBB
+        result = self.vs.get_write_cmd_line(lba, value)
+        answer = f"python {self.vs.get_virtual_ssd_file_path()} ssd W {lba} {value}"
+        self.assertEqual(result, answer)
