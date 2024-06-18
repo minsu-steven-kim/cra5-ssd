@@ -39,6 +39,9 @@ class VirtualSSD:
     def ssd_write(self, lba, data):
         self.NAND_TXT = FileIO("nand.txt")
         self.NAND_DATA = self.NAND_TXT.load()
-        self.NAND_DATA = data[2:] + self.NAND_DATA[8:]
+        if lba == 0:
+            self.NAND_DATA = data[2:] + self.NAND_DATA[8:]
+        if lba == 1:
+            self.NAND_DATA =self.NAND_DATA[:9] + data[2:] + self.NAND_DATA[17:]
         self.NAND_TXT.save(self.NAND_DATA)
 
