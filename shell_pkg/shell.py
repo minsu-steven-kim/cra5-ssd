@@ -5,4 +5,5 @@ class Shell:
         pass
 
     def write(self, lba: int, value: str):
-        pass
+        if lba < 0 or lba > 99:
+            raise Exception("INVALID COMMAND")
