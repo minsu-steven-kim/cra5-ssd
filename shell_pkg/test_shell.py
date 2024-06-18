@@ -1,13 +1,16 @@
 import os.path
 from unittest import TestCase
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from shell_pkg.shell import Shell
 import io
 import sys
 
+
 class TestShell(TestCase):
     def setUp(self):
         self.vs = Shell()
+        self.test_write_lba = 10
+        self.test_write_value = 0xAAAABBBB
 
     def test_write_temporary(self):
         self.vs.write(1, 0x12341234)
@@ -64,3 +67,26 @@ class TestShell(TestCase):
 
         captured_output = int(output.getvalue().strip())
         self.assertEqual(captured_output, 0xAAAABBBB)
+
+    @patch.object(Shell, "call_virtual_ssd_write_cmd")
+    def test_check_call_write_cmd(self, mock):
+        mock = Shell()
+        mock.write(self.test_write_lba, self.test_write_value)
+
+        self.assertEqual(1, mock.call_virtual_ssd_write_cmd.call_count, 1)
+        mock.call_virtual_ssd_write_cmd.assert_called_with(self.test_write_lba, self.test_write_value)
+
+    def test_check_write_cmd_line(self):
+        result = self.vs.get_write_cmd_line(self.test_write_lba, self.test_write_value)
+        answer = f"python {self.vs.get_virtual_ssd_file_path()} ssd W {self.test_write_lba} {self.test_write_value}"
+
+        self.assertEqual(result, answer)
+
+    @patch.object(Shell, "run_command")
+    def test_check_call_write_cmd(self, mock):
+        mock = Shell()
+        mock.write(self.test_write_lba, self.test_write_value)
+        cmd = mock.get_write_cmd_line(self.test_write_lba, self.test_write_value)
+
+        mock.run_command.assert_called_with(cmd)
+        self.assertEqual(1, mock.run_command.call_count)
