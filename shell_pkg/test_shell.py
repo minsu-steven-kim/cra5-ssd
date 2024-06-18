@@ -15,3 +15,10 @@ class TestShell(TestCase):
             vs.write(100, "ox12341234")
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
+
+    def test_write_invalid_type_lab(self):
+        vs = Shell()
+        with self.assertRaises(Exception) as context:
+            vs.write("10", "ox12341234")
+
+        self.assertEqual("INVALID COMMAND", str(context.exception))
