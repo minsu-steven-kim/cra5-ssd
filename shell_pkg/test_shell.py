@@ -9,6 +9,8 @@ import sys
 class TestShell(TestCase):
     def setUp(self):
         self.vs = Shell()
+        self.test_write_lba = 10
+        self.test_write_value = 0xAAAABBBB
 
     def test_write_temporary(self):
         self.vs.write(1, 0x12341234)
@@ -69,25 +71,22 @@ class TestShell(TestCase):
     @patch.object(Shell, "call_virtual_ssd_write_cmd")
     def test_check_call_write_cmd(self, mock):
         mock = Shell()
-        lba = 10
-        value = 0xAAAABBBB
-        mock.write(lba, value)
+        mock.write(self.test_write_lba, self.test_write_value)
+
         self.assertEqual(1, mock.call_virtual_ssd_write_cmd.call_count, 1)
-        mock.call_virtual_ssd_write_cmd.assert_called_with(lba, value)
+        mock.call_virtual_ssd_write_cmd.assert_called_with(self.test_write_lba, self.test_write_value)
 
     def test_check_write_cmd_line(self):
-        lba = 10
-        value = 0xAAAABBBB
-        result = self.vs.get_write_cmd_line(lba, value)
-        answer = f"python {self.vs.get_virtual_ssd_file_path()} ssd W {lba} {value}"
+        result = self.vs.get_write_cmd_line(self.test_write_lba, self.test_write_value)
+        answer = f"python {self.vs.get_virtual_ssd_file_path()} ssd W {self.test_write_lba} {self.test_write_value}"
+
         self.assertEqual(result, answer)
 
     @patch.object(Shell, "run_command")
     def test_check_call_write_cmd(self, mock):
         mock = Shell()
-        lba = 10
-        value = 0xAAAABBBB
-        mock.write(lba, value)
-        cmd = mock.get_write_cmd_line(lba, value)
+        mock.write(self.test_write_lba, self.test_write_value)
+        cmd = mock.get_write_cmd_line(self.test_write_lba, self.test_write_value)
+
         mock.run_command.assert_called_with(cmd)
         self.assertEqual(1, mock.run_command.call_count)
