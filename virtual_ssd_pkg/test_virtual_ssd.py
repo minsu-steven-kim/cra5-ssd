@@ -15,7 +15,6 @@ class TestVirtualSSD(TestCase):
 
         self.assertEqual(str(context.exception), "INVALID COMMAND")
 
-
     def test_read_command_invalid_string(self):
         with self.assertRaises(ValueError) as context:
             self.virtual_ssd.parsing_command("ssd R 1234 123")
@@ -28,5 +27,19 @@ class TestVirtualSSD(TestCase):
 
         self.assertEqual(str(context.exception), "INVALID COMMAND")
 
+    def test_read_LBA_not_int_type(self):
+        with self.assertRaises(ValueError) as context:
+            self.virtual_ssd.parsing_command("ssd R AAA")
+
+        self.assertEqual(str(context.exception), "INVALID COMMAND")
+
+    def test_read_LBA_out_of_range(self):
+        with self.assertRaises(ValueError) as context:
+            self.virtual_ssd.parsing_command("ssd R 1234")
+
+        self.assertEqual(str(context.exception), "INVALID COMMAND")
+
+    def test_read_called(self):
+        self.assertEqual("READ", self.virtual_ssd.parsing_command("ssd R 10"))
 
 
