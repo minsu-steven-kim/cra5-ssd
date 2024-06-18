@@ -5,7 +5,7 @@ class Shell:
     def __init__(self):
         pass
 
-    def write(self, lba: int, value: str):
+    def write(self, lba: int, value: int):
         if self.is_invalid_lba(lba):
             raise Exception("INVALID COMMAND")
 
