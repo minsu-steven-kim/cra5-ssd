@@ -12,13 +12,17 @@ class Shell:
         self.__virtual_ssd_file_path = file_path
 
     def write(self, lba: int, value: int):
-        if self.is_invalid_lba(lba):
+        if self.is_valid_parameter(lba, value):
             raise Exception("INVALID COMMAND")
-        if self.is_invalid_value(value):
-            raise Exception("INVALID COMMAND")
-
         if not os.path.exists(self.__virtual_ssd_file_path):
             raise FileExistsError("VIRTUAL_FILE_PATH_ERROR")
+
+    def is_valid_parameter(self, lba, value):
+        if self.is_invalid_lba(lba):
+            return True
+        if self.is_invalid_value(value):
+            return True
+        return False
 
     def is_invalid_lba(self, lba):
         if type(lba) != int:
