@@ -43,5 +43,5 @@ class VirtualSSD:
         self.NAND_TXT = FileIO("nand.txt")
         self.NAND_DATA = self.NAND_TXT.load()
         lba = int(lba)
-        self.NAND_DATA = self.NAND_DATA[:lba * 9] + data[2:] + self.NAND_DATA[(lba + 1) * 9 - 1:]
+        self.NAND_DATA = self.NAND_DATA[:lba * 11] + data + self.NAND_DATA[(lba + 1) * 11 - 1:]
         self.NAND_TXT.save(self.NAND_DATA)
