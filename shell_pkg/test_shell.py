@@ -1,3 +1,4 @@
+import os.path
 from unittest import TestCase
 from shell import Shell
 
@@ -37,3 +38,9 @@ class TestShell(TestCase):
             vs.write(10, "0XFFFFFFFF")
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
+
+    def test_invalid_virtual_ssd_file_path(self):
+        vs = Shell()
+        vs.set_virtual_ssd_file_path("123.py")
+        with self.assertRaises(FileExistsError) as context:
+            vs.write(10, 0XFFFFFFFF)
