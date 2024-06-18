@@ -3,7 +3,7 @@ import os
 
 class Shell:
     def __init__(self):
-        self.__virtual_ssd_file_path = "../virtual_ssd_pkg/virtual_ssd.py"
+        self.__virtual_ssd_file_path = "../virtual_ssd_pkg/ssd.py"
 
     def get_virtual_ssd_file_path(self):
         return self.__virtual_ssd_file_path
