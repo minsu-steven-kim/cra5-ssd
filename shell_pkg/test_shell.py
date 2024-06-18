@@ -13,3 +13,9 @@ class TestShell(TestCase):
         shell.send_cmd_to_ssd = Mock()
         shell.read(3)
         self.assertEqual(shell.send_cmd_to_ssd.call_count, 1)
+
+    def test_read_calling_get_result_with_ssd(self):
+        shell = Shell()
+        shell.get_result_with_ssd = Mock()
+        shell.read(3)
+        self.assertEqual(shell.get_result_with_ssd.call_count, 1)
