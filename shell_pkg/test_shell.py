@@ -1,9 +1,10 @@
 import os.path
 from unittest import TestCase
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from shell_pkg.shell import Shell
 import io
 import sys
+
 
 class TestShell(TestCase):
     def setUp(self):
@@ -64,3 +65,12 @@ class TestShell(TestCase):
 
         captured_output = int(output.getvalue().strip())
         self.assertEqual(captured_output, 0xAAAABBBB)
+
+    @patch.object(Shell, "call_virtual_ssd_write_cmd")
+    def test_check_call_write_cmd(self, mock):
+        mock = Shell()
+        lba = 10
+        value = 0xAAAABBBB
+        mock.write(lba, value)
+        self.assertEqual(1, mock.call_virtual_ssd_write_cmd.call_count, 1)
+        mock.call_virtual_ssd_write_cmd.assert_called_with(lba, value)
