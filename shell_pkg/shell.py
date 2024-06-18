@@ -1,36 +1,27 @@
 import os
 
+from command import InvalidCommand, ExitCommand
+
 
 class Shell:
     def __init__(self):
         self.__virtual_ssd_file_path = "../virtual_ssd_pkg/ssd.py"
 
     def run(self):
-        while True:
+        is_exit = 0
+        while not is_exit:
             print('> ', end='')
-            cmd, args = self.parse_command(input())
-            if cmd == 'exit':
-                break
-            else:
-                self.execute(cmd)
+            args = input().split()
+            cmd = self.determine_cmd(args)
+            is_exit = cmd.execute()
 
-    def parse_command(self, raw):
-        # TODO: implement
-        if raw == 'exit':
-            return 'exit', []
-        return 'invalid', []
-
-    def execute(self, cmd):
-        # TODO: implement
-        if cmd == 'help':
-            self.help()
+    def determine_cmd(self, args):
+        if len(args) == 0:
+            return InvalidCommand()
+        elif args[0] == 'exit':
+            return ExitCommand()
         else:
-            print('INVALID COMMAND')
-
-    def help(self):
-        # TODO: implement
-        print('help message')
-        pass
+            return InvalidCommand()
 
     def get_virtual_ssd_file_path(self):
         return self.__virtual_ssd_file_path
