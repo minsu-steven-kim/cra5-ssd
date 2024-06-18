@@ -1,10 +1,22 @@
 from .file_io import FileIO
 
 
+import sys
+
+
 class VirtualSSD:
     def __init__(self):
         self.nand_file = 'nand.txt'
         self.result_file = 'result.txt'
+        self.command = self.take_command()
+
+    def take_command(self):
+        try:
+            arguments = ['ssd'] + sys.argv[1:]
+            return self.parsing_command(' '.join(arguments))
+        except ValueError:
+            print('INVALID COMMAND')
+        return None
 
     def parsing_command(self, cmd):
         if type(cmd) != str:
@@ -49,3 +61,7 @@ class VirtualSSD:
 
         with open(self.result_file, 'w') as f:
             f.write(nand_file_data[int(lba)])
+
+
+if __name__ == '__main__':
+    ssd = VirtualSSD()

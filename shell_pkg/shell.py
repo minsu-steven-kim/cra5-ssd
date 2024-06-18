@@ -37,3 +37,13 @@ class Shell:
         if value < 0x00000000 or value > 0xFFFFFFFF:
             return True
         return False
+
+    def read(self, param):
+        self.send_cmd_to_ssd()
+        print(self.get_result_with_ssd())
+
+    def send_cmd_to_ssd(self):
+        pass
+
+    def get_result_with_ssd(self):
+        pass
