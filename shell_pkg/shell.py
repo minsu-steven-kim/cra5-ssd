@@ -24,7 +24,7 @@ class Shell:
         elif args[0] == 'write':
             return WriteCommand(self.__virtual_ssd_file_path, args)
         elif args[0] == 'read':
-            return ReadCommand(self.__virtual_ssd_file_path, args[1])
+            return ReadCommand(self.__virtual_ssd_file_path, args)
         elif args[0] == 'fullwrite':
             return FullwriteCommand(self.__virtual_ssd_file_path, args)
         elif args[0] == 'fullread':

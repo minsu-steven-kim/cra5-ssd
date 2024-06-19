@@ -30,7 +30,6 @@ class ExitCommand(Command):
     def execute(self):
         return 1
 
-
 class HelpCommand(Command):
     def execute(self):
         print("""============================== Command Guide ==============================
@@ -106,9 +105,16 @@ class WriteCommand(Command):
 
 
 class ReadCommand(Command):
-    def __init__(self, filepath, lba):
-        self.lba = lba
+    def __init__(self, filepath, args):
+        if not self.check_command_length(args):
+            raise Exception("INVALID COMMAND")
+        self.lba = args[1]
         self.filepath = filepath
+
+    def check_command_length(self, args):
+        if len(args) == 2:
+            return True
+        return False
 
     def execute(self):
         if self.is_invalid_lba(self.lba):
@@ -123,7 +129,7 @@ class ReadCommand(Command):
             return f.read()
 
     def create_command(self):
-        return f"python {self.filepath} ssd R {self.lba}"
+        return f"python {self.filepath} R {self.lba}"
 
     def send_cmd_to_ssd(self):
         cmd = self.create_command()
@@ -149,5 +155,5 @@ class FullreadCommand(Command):
 
     def execute(self):
         for lba in range(100):
-            read_cmd = ReadCommand(self.filepath, str(lba))
+            read_cmd = ReadCommand(self.filepath, ['read', str(lba)])
             read_cmd.execute()
