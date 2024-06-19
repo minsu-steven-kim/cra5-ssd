@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from virtual_ssd_pkg.command import WriteCommand
 
-FAKE_DATA = '0xBAADEEEE'
+FAKE_DATA = '0x12345678'
 line_len = 11
 
 class TestCommand(TestCase):
@@ -34,3 +34,9 @@ class TestCommand(TestCase):
         expected = self.command.NAND_TXT.load()[FAKE_LBA * line_len:(FAKE_LBA + 1) * line_len - 1]
         self.assertEqual(expected, FAKE_DATA)
 
+    def test_write_command_LBA_1(self):
+        FAKE_LBA = 1
+        args = ['W',str(FAKE_LBA),FAKE_DATA]
+        self.command.execute(args)
+        expected = self.command.NAND_TXT.load()[FAKE_LBA * line_len:(FAKE_LBA + 1) * line_len - 1]
+        self.assertEqual(expected, FAKE_DATA)
