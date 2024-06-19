@@ -30,7 +30,6 @@ class ExitCommand(Command):
     def execute(self):
         return 1
 
-
 class HelpCommand(Command):
     def execute(self):
         print("""============================== Command Guide ==============================
@@ -104,6 +103,7 @@ class WriteCommand(Command):
         return f"python {self.__file_path} W {self.__lba} {self.__value}"
 
 
+
 class ReadCommand(Command):
     def __init__(self, filepath, args):
         if not self.check_command_length(args):
@@ -135,7 +135,6 @@ class ReadCommand(Command):
         cmd = self.create_command()
         self.run_command(cmd)
 
-
 class FullwriteCommand(Command):
     def __init__(self, filepath, args):
         if len(args) != 2:
@@ -150,7 +149,6 @@ class FullwriteCommand(Command):
         for lba in range(100):
             WriteCommand(self.filepath, ['write', str(lba), self.__value]).execute()
 
-
 class FullreadCommand(Command):
     def __init__(self, filepath):
         self.filepath = filepath
@@ -160,6 +158,17 @@ class FullreadCommand(Command):
             read_cmd = ReadCommand(self.filepath, ['read', str(lba)])
             read_cmd.execute()
 
+class TestApp1Command(Command):
+    def __init__(self, filepath):
+        self.filepath = filepath
+        self.testValue = '0xABCDFFFF'
+        self.validationValue = '0xABCDFFFF\n' * 100
+
+    def execute(self):
+        fullWrite = FullwriteCommand(self.filepath, ['fullwrite', self.testValue])
+        fullWrite.execute()
+        fullRead = FullreadCommand(self.filepath)
+        fullRead.execute()
 
 class TestApp2Command(Command):
     def __init__(self, filepath):

@@ -2,14 +2,18 @@ import os.path
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from command import WriteCommand, HelpCommand, ReadCommand, FullwriteCommand, FullreadCommand, TestApp2Command
+from command import WriteCommand, HelpCommand, ReadCommand, FullwriteCommand, FullreadCommand, TestApp1Command, \
+    TestApp2Command
 from shell import Shell
 
 import io
 import sys
 
 INVALID_LBA = "100"
+INVALID_TYPE_LBA = 10
 VALID_LBA = "3"
+VALID_VALUE = "0xAAAABBBB"
+INVALID_RANGE_VALUE = "0xAAABBB"
 TEST_SSD_FILE_PATH = "../virtual_ssd_pkg/ssd.py"
 NON_INIT_VALUE = 0xAAAABBBB
 
@@ -17,34 +21,34 @@ NON_INIT_VALUE = 0xAAAABBBB
 class TestShell(TestCase):
     def setUp(self):
         self.vs = Shell()
-        self.wc = WriteCommand("../virtual_ssd_pkg/ssd.py", ["write", "10", "0xAAAABBBB"])
+        self.wc = WriteCommand(TEST_SSD_FILE_PATH, ["write", VALID_LBA, VALID_VALUE])
         self.read_cmd_valid_lba = ['read', VALID_LBA]
         self.read_cmd_invalid_lba = ['read', INVALID_LBA]
 
     def test_write_execute_invalid_lba(self):
         with self.assertRaises(Exception) as context:
-            self.wc.set_lba("100")
+            self.wc.set_lba(INVALID_LBA)
             self.wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
-    def test_write_invalid_type_lab(self):
+    def test_write_invalid_type_lba(self):
         with self.assertRaises(Exception) as context:
-            self.wc.set_lba(10)
+            self.wc.set_lba(INVALID_TYPE_LBA)
             self.wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_write_invalid_range_value(self):
         with self.assertRaises(Exception) as context:
-            self.wc.set_value("0xAAAABBB")
+            self.wc.set_value(INVALID_RANGE_VALUE)
             self.wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_write_invalid_type_value(self):
         with self.assertRaises(Exception) as context:
-            self.wc.set_value(0XFFFFFFFF)
+            self.wc.set_value(NON_INIT_VALUE)
             self.wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
@@ -104,7 +108,7 @@ class TestShell(TestCase):
 
     @patch.object(WriteCommand, "run_command")
     def test_check_call_write_cmd(self, mock):
-        mock = WriteCommand("../virtual_ssd_pkg/ssd.py", ["write", "99", "0xAAAABBBB"])
+        mock = WriteCommand(TEST_SSD_FILE_PATH, ["write", VALID_LBA, VALID_VALUE])
         mock.execute()
         cmd = mock.get_write_cmd_line()
 
@@ -113,7 +117,7 @@ class TestShell(TestCase):
 
     def test_init_write_command_without_value(self):
         with self.assertRaises(Exception) as context:
-            wc = WriteCommand("../virtual_ssd_pkg/ssd.py", ["write", "99"])
+            wc = WriteCommand(TEST_SSD_FILE_PATH, ["write", VALID_LBA])
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
@@ -121,7 +125,7 @@ class TestShell(TestCase):
     def test_read_check_invalid_lba(self, resMock):
         lba = INVALID_LBA
         with self.assertRaises(Exception) as context:
-            read = ReadCommand("../virtual_ssd_pkg/ssd.py", lba)
+            read = ReadCommand(TEST_SSD_FILE_PATH, lba)
             read.execute()
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
@@ -130,7 +134,7 @@ class TestShell(TestCase):
         if os.path.exists('result.txt'):
             os.remove('result.txt')
         with self.assertRaises(FileNotFoundError):
-            read = ReadCommand("../virtual_ssd_pkg/ssd.py", self.read_cmd_valid_lba)
+            read = ReadCommand(TEST_SSD_FILE_PATH, self.read_cmd_valid_lba)
             read.execute()
 
     def test_read_create_command(self):
@@ -141,21 +145,21 @@ class TestShell(TestCase):
 
     def test_fullwrite_invalid_range_value(self):
         with self.assertRaises(Exception) as context:
-            wc = FullwriteCommand(TEST_SSD_FILE_PATH, ["fullwrite", "0xAAAABBB"])
+            wc = FullwriteCommand(TEST_SSD_FILE_PATH, ["fullwrite", INVALID_RANGE_VALUE])
             wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_fullwrite_invalid_type_value(self):
         with self.assertRaises(Exception) as context:
-            wc = FullwriteCommand(TEST_SSD_FILE_PATH, ["fullwrite", 0XFFFFFFFF])
+            wc = FullwriteCommand(TEST_SSD_FILE_PATH, ["fullwrite", NON_INIT_VALUE])
             wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     @patch.object(WriteCommand, 'execute')
     def test_fullwirte_with_mocked_write_commands(self, mock_execute):
-        fullwrite_command = FullwriteCommand(TEST_SSD_FILE_PATH, ["fullwrite", "0xAAAABBBB"])
+        fullwrite_command = FullwriteCommand(TEST_SSD_FILE_PATH, ["fullwrite", VALID_VALUE])
         fullwrite_command.execute()
         self.assertEqual(mock_execute.call_count, 100)
 
@@ -163,7 +167,7 @@ class TestShell(TestCase):
     def test_fullread_with_mocked_read_commands(self, mock_execute):
         fullread_command = FullreadCommand(TEST_SSD_FILE_PATH)
         fullread_command.execute()
-        self.assertEqual(mock_execute.call_count, 36)
+        self.assertEqual(mock_execute.call_count, 100)
 
     @patch.object(WriteCommand, 'execute')
     def test_app2_calling_write_command(self, mock_execute):
@@ -190,4 +194,31 @@ class TestShell(TestCase):
 
         captured_output = output.getvalue()
         expected = '0x12345678\n' * 6
+        self.assertEqual(captured_output, expected)
+
+    @patch.object(FullwriteCommand, 'execute')
+    def test_app1_calling_fullwrite(self, mock_execute):
+        testapp1 = TestApp1Command(TEST_SSD_FILE_PATH)
+        testapp1.execute()
+        self.assertEqual(mock_execute.call_count, 1)
+
+    @patch.object(FullreadCommand, 'execute')
+    def test_app1_calling_fullread(self, mock_execute):
+        testapp1 = TestApp1Command(TEST_SSD_FILE_PATH)
+        testapp1.execute()
+        self.assertEqual(mock_execute.call_count, 1)
+
+    def test_app1_compare_value(self):
+        output = io.StringIO()
+        original_stdout = sys.stdout
+        sys.stdout = output
+
+        try:
+            testapp1 = TestApp1Command(TEST_SSD_FILE_PATH)
+            testapp1.execute()
+        finally:
+            sys.stdout = original_stdout
+
+        captured_output = output.getvalue()
+        expected = '0xABCDFFFF\n' * 100
         self.assertEqual(captured_output, expected)
