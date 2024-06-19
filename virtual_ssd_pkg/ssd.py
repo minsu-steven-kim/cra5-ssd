@@ -1,8 +1,6 @@
-from file_io import FileIO
-from command import InvalidCommand, WriteCommand, ReadCommand
-
 import sys
-import re
+
+from command import InvalidCommand, WriteCommand, ReadCommand
 
 
 class VirtualSSD:
