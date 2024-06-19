@@ -30,6 +30,7 @@ class ExitCommand(Command):
     def execute(self):
         return 1
 
+
 class HelpCommand(Command):
     def execute(self):
         print("""============================== Command Guide ==============================
@@ -103,7 +104,6 @@ class WriteCommand(Command):
         return f"python {self.__file_path} W {self.__lba} {self.__value}"
 
 
-
 class ReadCommand(Command):
     def __init__(self, filepath, args):
         if not self.check_command_length(args):
@@ -135,6 +135,7 @@ class ReadCommand(Command):
         cmd = self.create_command()
         self.run_command(cmd)
 
+
 class FullwriteCommand(Command):
     def __init__(self, filepath, args):
         if len(args) != 2:
@@ -149,6 +150,7 @@ class FullwriteCommand(Command):
         for lba in range(100):
             WriteCommand(self.filepath, ['write', str(lba), self.__value]).execute()
 
+
 class FullreadCommand(Command):
     def __init__(self, filepath):
         self.filepath = filepath
@@ -157,3 +159,59 @@ class FullreadCommand(Command):
         for lba in range(100):
             read_cmd = ReadCommand(self.filepath, ['read', str(lba)])
             read_cmd.execute()
+
+
+class TestApp2Command(Command):
+    def __init__(self, filepath):
+        self.filepath = filepath
+
+    def write_test1(self):
+        write_command0 = WriteCommand(self.filepath, [None, '0', '0xAAAABBBB'])
+        write_command1 = WriteCommand(self.filepath, [None, '1', '0xAAAABBBB'])
+        write_command2 = WriteCommand(self.filepath, [None, '2', '0xAAAABBBB'])
+        write_command3 = WriteCommand(self.filepath, [None, '3', '0xAAAABBBB'])
+        write_command4 = WriteCommand(self.filepath, [None, '4', '0xAAAABBBB'])
+        write_command5 = WriteCommand(self.filepath, [None, '5', '0xAAAABBBB'])
+
+        for i in range(30):
+            write_command0.execute()
+            write_command1.execute()
+            write_command2.execute()
+            write_command3.execute()
+            write_command4.execute()
+            write_command5.execute()
+
+    def write_test2(self):
+        write_command0 = WriteCommand(self.filepath, [None, '0', '0x12345678'])
+        write_command1 = WriteCommand(self.filepath, [None, '1', '0x12345678'])
+        write_command2 = WriteCommand(self.filepath, [None, '2', '0x12345678'])
+        write_command3 = WriteCommand(self.filepath, [None, '3', '0x12345678'])
+        write_command4 = WriteCommand(self.filepath, [None, '4', '0x12345678'])
+        write_command5 = WriteCommand(self.filepath, [None, '5', '0x12345678'])
+
+        write_command0.execute()
+        write_command1.execute()
+        write_command2.execute()
+        write_command3.execute()
+        write_command4.execute()
+        write_command5.execute()
+
+    def read_test(self):
+        read_command0 = ReadCommand(self.filepath, ['None', '0'])
+        read_command1 = ReadCommand(self.filepath, ['None', '1'])
+        read_command2 = ReadCommand(self.filepath, ['None', '2'])
+        read_command3 = ReadCommand(self.filepath, ['None', '3'])
+        read_command4 = ReadCommand(self.filepath, ['None', '4'])
+        read_command5 = ReadCommand(self.filepath, ['None', '5'])
+
+        read_command0.execute()
+        read_command1.execute()
+        read_command2.execute()
+        read_command3.execute()
+        read_command4.execute()
+        read_command5.execute()
+
+    def execute(self):
+        self.write_test1()
+        self.write_test2()
+        self.read_test()
