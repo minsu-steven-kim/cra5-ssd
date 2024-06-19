@@ -2,7 +2,8 @@ import os.path
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from command import WriteCommand, HelpCommand, ReadCommand, FullreadCommand
+
+from command import WriteCommand, HelpCommand, ReadCommand, FullwriteCommand, FullreadCommand
 from shell import Shell
 
 import io
@@ -147,6 +148,26 @@ class TestShell(TestCase):
         actual = read.create_command()
         expected = f"python ../virtual_ssd_pkg/ssd.py ssd R 3"
         self.assertEqual(actual, expected)
+
+    def test_fullwrite_invalid_range_value(self):
+        with self.assertRaises(Exception) as context:
+            wc = FullwriteCommand(TEST_SSD_FILE_PATH, ["fullwrite", "0xAAAABBB"])
+            wc.execute()
+
+        self.assertEqual("INVALID COMMAND", str(context.exception))
+
+    def test_fullwrite_invalid_type_value(self):
+        with self.assertRaises(Exception) as context:
+            wc = FullwriteCommand(TEST_SSD_FILE_PATH, ["fullwrite",0XFFFFFFFF])
+            wc.execute()
+
+        self.assertEqual("INVALID COMMAND", str(context.exception))
+
+    @patch.object(WriteCommand, 'execute')
+    def test_fullwirte_with_mocked_write_commands(self, mock_execute):
+        fullwrite_command = FullwriteCommand(TEST_SSD_FILE_PATH, ["fullwrite", "0xAAAABBBB"])
+        fullwrite_command.execute()
+        self.assertEqual(mock_execute.call_count, 100)
 
     @patch.object(ReadCommand, 'execute')
     def test_fullread_with_mocked_read_commands(self, mock_execute):
