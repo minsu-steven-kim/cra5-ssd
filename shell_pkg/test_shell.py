@@ -171,3 +171,9 @@ class TestShell(TestCase):
         testapp1 = TestApp1(TEST_SSD_FILE_PATH)
         testapp1.execute()
         self.assertEqual(mock_execute.call_count, 1)
+
+    @patch.object(FullreadCommand, 'execute')
+    def test_app1_calling_fullread(self, mock_execute):
+        testapp1 = TestApp1(TEST_SSD_FILE_PATH)
+        testapp1.execute()
+        self.assertEqual(mock_execute.call_count, 1)

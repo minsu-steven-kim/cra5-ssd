@@ -165,3 +165,5 @@ class TestApp1(Command):
     def execute(self):
         fullWrite = FullwriteCommand(self.filepath, ['fullwrite', '0xABCDFFFF'])
         fullWrite.execute()
+        fullRead = FullreadCommand(self.filepath)
+        fullRead.execute()
