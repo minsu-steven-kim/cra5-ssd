@@ -1,5 +1,5 @@
 import os
-from command import InvalidCommand, ExitCommand, HelpCommand, WriteCommand
+from command import InvalidCommand, ExitCommand, HelpCommand, WriteCommand, ReadCommand
 
 
 class Shell:
@@ -23,6 +23,8 @@ class Shell:
             return HelpCommand()
         elif args[0] == 'write':
             return WriteCommand(self.__virtual_ssd_file_path, args[1], args[2])
+        elif args[0] == 'read':
+            return ReadCommand(self.__virtual_ssd_file_path, args[1])
         else:
             return InvalidCommand()
 
@@ -31,17 +33,6 @@ class Shell:
 
     def get_virtual_ssd_file_path(self):
         return self.__virtual_ssd_file_path
-
-    def read(self, param):
-        self.send_cmd_to_ssd()
-        print(self.get_result_with_ssd())
-
-    def send_cmd_to_ssd(self):
-        pass
-
-    def get_result_with_ssd(self):
-        pass
-
 
 if __name__ == '__main__':
     shell = Shell()
