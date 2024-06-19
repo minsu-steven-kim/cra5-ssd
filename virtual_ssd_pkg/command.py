@@ -34,7 +34,7 @@ class Command(ABC):
 
 class WriteCommand(Command):
     def is_invalid_parameter(self, args):
-        if len(args) < 3:
+        if len(args) != 3:
             return True
         if self.is_invalid_lba(args[1]):
             return True
@@ -55,6 +55,8 @@ class WriteCommand(Command):
 
 class ReadCommand(Command):
     def execute(self, args):
+        if len(args) != 2:
+            raise Exception(INVALID_COMMAND)
         if self.is_invalid_lba(args[1]):
             raise Exception(INVALID_COMMAND)
 
