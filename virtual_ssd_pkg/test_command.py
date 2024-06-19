@@ -15,3 +15,10 @@ class TestCommand(TestCase):
 
         with self.assertRaises(Exception):
             command.execute(args)
+
+    def test_write_command_invalid_lba(self):
+        command = WriteCommand()
+        args = 'ssd W 14234 0x00000000'
+
+        with self.assertRaises(Exception):
+            command.execute(args)
