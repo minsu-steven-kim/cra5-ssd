@@ -8,8 +8,8 @@ from shell import Shell
 import io
 import sys
 
-INVALID_LBA = 100
-VALID_LBA = 3
+INVALID_LBA = "100"
+VALID_LBA = "3"
 TEST_SSD_FILE_PATH = "../virtual_ssd_pkg/ssd.py"
 NON_INIT_VALUE = 0xAAAABBBB
 

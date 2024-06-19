@@ -17,6 +17,9 @@ class Command(ABC):
             return True
         return False
 
+    def run_command(self, cmd):
+        os.system(cmd)
+
     def is_invalid_value(self, value: str):
         if type(value) != str:
             return True
@@ -79,9 +82,6 @@ class WriteCommand(Command):
             return True
         return False
 
-    def run_command(self, cmd):
-        os.system(cmd)
-
     def get_write_cmd_line(self):
         return f"python {self.file_path} ssd W {self.lba} {self.value}"
 
@@ -92,6 +92,8 @@ class ReadCommand(Command):
     def execute(self):
         if self.is_invalid_lba(self.lba):
             raise Exception("INVALID COMMAND")
+        if not os.path.exists(self.filepath):
+            raise FileExistsError("VIRTUAL_FILE_PATH_ERROR")
         self.send_cmd_to_ssd()
         print(self.get_result_with_ssd())
     def get_result_with_ssd(self):
@@ -99,9 +101,6 @@ class ReadCommand(Command):
             return f.read()
     def create_command(self):
         return f"python {self.filepath} ssd R {self.lba}"
-
-    def run_command(self, cmd):
-        os.system(cmd)
 
     def send_cmd_to_ssd(self):
         cmd = self.create_command()
