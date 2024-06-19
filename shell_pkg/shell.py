@@ -1,5 +1,5 @@
 import os
-from command import InvalidCommand, ExitCommand, HelpCommand
+from command import InvalidCommand, ExitCommand, HelpCommand, WriteCommand
 
 
 class Shell:
@@ -21,6 +21,8 @@ class Shell:
             return ExitCommand()
         elif args[0] == 'help':
             return HelpCommand()
+        elif args[0] == 'write':
+            return WriteCommand(self.__virtual_ssd_file_path, args[1], args[2])
         else:
             return InvalidCommand()
 
