@@ -31,7 +31,7 @@ class TestShell(TestCase):
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
-    def test_write_invalid_type_lab(self):
+    def test_write_invalid_type_lba(self):
         with self.assertRaises(Exception) as context:
             self.wc.set_lba(INVALID_TYPE_LBA)
             self.wc.execute()
