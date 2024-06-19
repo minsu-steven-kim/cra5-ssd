@@ -58,9 +58,11 @@ class InvalidCommand(Command):
 
 
 class WriteCommand(Command):
-    def __init__(self, file_path, lba: int, value: str):
-        self.__lba = lba
-        self.__value = value
+    def __init__(self, file_path, args):
+        if len(args) != 3:
+            raise Exception("INVALID COMMAND")
+        self.__lba = args[1]
+        self.__value = args[2]
         self.__file_path = file_path
 
     def get_lba(self):
@@ -133,6 +135,19 @@ class ReadCommand(Command):
         cmd = self.create_command()
         self.run_command(cmd)
 
+class FullwriteCommand(Command):
+    def __init__(self, filepath, args):
+        if len(args) != 2:
+            raise Exception("INVALID COMMAND")
+        self.filepath = filepath
+        self.__value = args[1]
+
+    def execute(self):
+        if self.is_invalid_value(self.__value):
+            raise Exception("INVALID COMMAND")
+
+        for lba in range(100):
+            WriteCommand(self.filepath, str(lba), self.__value).execute()
 
 class FullreadCommand(Command):
     def __init__(self, filepath):

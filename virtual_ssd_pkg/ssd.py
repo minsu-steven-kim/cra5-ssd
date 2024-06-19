@@ -2,6 +2,8 @@ import sys
 
 from command import InvalidCommand, WriteCommand, ReadCommand
 
+INVALID_COMMAND = "INVALID COMMAND"
+
 
 class VirtualSSD:
     def __init__(self):
@@ -25,4 +27,7 @@ class VirtualSSD:
 
 if __name__ == '__main__':
     ssd = VirtualSSD()
-    ssd.run()
+    try:
+        ssd.run()
+    except Exception:
+        print(INVALID_COMMAND)

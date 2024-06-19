@@ -2,7 +2,8 @@ import os.path
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from command import WriteCommand, HelpCommand, ReadCommand, FullreadCommand
+
+from command import WriteCommand, HelpCommand, ReadCommand, FullwriteCommand, FullreadCommand
 from shell import Shell
 
 import io
@@ -17,7 +18,7 @@ NON_INIT_VALUE = 0xAAAABBBB
 class TestShell(TestCase):
     def setUp(self):
         self.vs = Shell()
-        self.wc = WriteCommand("../virtual_ssd_pkg/ssd.py", "10", "0xAAAABBBB")
+        self.wc = WriteCommand("../virtual_ssd_pkg/ssd.py", ["write", "10", "0xAAAABBBB"])
         self.read_cmd_valid_lba = ['read', VALID_LBA]
         self.read_cmd_invalid_lba = ['read', INVALID_LBA]
 
@@ -97,6 +98,26 @@ class TestShell(TestCase):
 """
         self.assertEqual(expected_output, captured_output)
 
+    def test_check_write_cmd_line(self):
+        cmd = f"python {self.vs.get_virtual_ssd_file_path()} W {self.wc.get_lba()} {self.wc.get_value()}"
+
+        self.assertEqual(self.wc.get_write_cmd_line(), cmd)
+
+    @patch.object(WriteCommand, "run_command")
+    def test_check_call_write_cmd(self, mock):
+        mock = WriteCommand("../virtual_ssd_pkg/ssd.py", ["write", "99", "0xAAAABBBB"])
+        mock.execute()
+        cmd = mock.get_write_cmd_line()
+
+        self.assertEqual(1, mock.run_command.call_count)
+        mock.run_command.assert_called_with(cmd)
+
+    def test_init_write_command_without_value(self):
+        with self.assertRaises(Exception) as context:
+            wc = WriteCommand("../virtual_ssd_pkg/ssd.py", ["write", "99"])
+
+        self.assertEqual("INVALID COMMAND", str(context.exception))
+
     @patch.object(ReadCommand, 'get_result_with_ssd', return_value=NON_INIT_VALUE)
     def test_read_check_invalid_lba(self, resMock):
         lba = INVALID_LBA
@@ -118,6 +139,26 @@ class TestShell(TestCase):
         actual = read.create_command()
         expected = f"python ../virtual_ssd_pkg/ssd.py R 3"
         self.assertEqual(actual, expected)
+
+    def test_fullwrite_invalid_range_value(self):
+        with self.assertRaises(Exception) as context:
+            wc = FullwriteCommand(TEST_SSD_FILE_PATH, ["fullwrite", "0xAAAABBB"])
+            wc.execute()
+
+        self.assertEqual("INVALID COMMAND", str(context.exception))
+
+    def test_fullwrite_invalid_type_value(self):
+        with self.assertRaises(Exception) as context:
+            wc = FullwriteCommand(TEST_SSD_FILE_PATH, ["fullwrite",0XFFFFFFFF])
+            wc.execute()
+
+        self.assertEqual("INVALID COMMAND", str(context.exception))
+
+    @patch.object(WriteCommand, 'execute')
+    def test_fullwirte_with_mocked_write_commands(self, mock_execute):
+        fullwrite_command = FullwriteCommand(TEST_SSD_FILE_PATH, ["fullwrite", "0xAAAABBBB"])
+        fullwrite_command.execute()
+        self.assertEqual(mock_execute.call_count, 100)
 
     @patch.object(ReadCommand, 'execute')
     def test_fullread_with_mocked_read_commands(self, mock_execute):
