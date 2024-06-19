@@ -7,6 +7,8 @@ from ssd import VirtualSSD
 from file_io import FileIO
 
 INVALID_COMMAND = "INVALID COMMAND"
+line_len = 11
+FAKE_DATA = ('0x12345678')
 
 class TestVirtualSSD(TestCase):
     def setUp(self):
@@ -30,26 +32,31 @@ class TestVirtualSSD(TestCase):
         result = subprocess.run(['python', 'ssd.py', 'R', '100'], capture_output=True, text=True)
         self.assertIn(INVALID_COMMAND, result.stdout)
 
-    @patch('os.system')
-    def test_write_with_cli(self, mock_system):
-        mock_system.return_value = 0
-        result = os.system('python ssd.py W 1 0x00000000')
-        self.assertEqual(result, 0)
+    def test_write_with_cli(self):
+        FAKE_LBA = 1
+        result = subprocess.run(['python', 'ssd.py', 'W', str(FAKE_LBA), FAKE_DATA], capture_output=True, text=True)
+        self.assertIn('', result.stdout)
+        file_io = FileIO('nand.txt')
+        ret = file_io.load()
+        expected = ret[FAKE_LBA * line_len:(FAKE_LBA + 1) * line_len - 1]
+        self.assertEqual(expected, FAKE_DATA)
 
-    @patch('os.system')
-    def test_write_with_cli_invalid_lba_range(self, mock_system):
-        mock_system.return_value = 1
-        result = os.system('python ssd.py W -1 0x00000000')
-        self.assertEqual(result, 1)
+    def test_write_with_cli_invalid_lba_range(self):
+        FAKE_LBA = -1
+        result = subprocess.run(['python', 'ssd.py', 'W', str(FAKE_LBA), FAKE_DATA], capture_output=True, text=True)
+        self.assertIn(INVALID_COMMAND, result.stdout)
 
-        result = os.system('python ssd.py W 100 0x00000000')
-        self.assertEqual(result, 1)
+        FAKE_LBA = 100
+        result = subprocess.run(['python', 'ssd.py', 'W', str(FAKE_LBA), FAKE_DATA], capture_output=True, text=True)
+        self.assertIn(INVALID_COMMAND, result.stdout)
 
-    @patch('os.system')
-    def test_write_with_cli_invalid_data_range(self, mock_system):
-        mock_system.return_value = 1
-        result = os.system('python ssd.py W 0 0000000000')
-        self.assertEqual(result, 1)
+    def test_write_with_cli_invalid_data_range(self):
+        FAKE_LBA = 1
 
-        result = os.system('python ssd.py W 0 0x0000000H')
-        self.assertEqual(result, 1)
+        FAKE_DATA = '0000000000'
+        result = subprocess.run(['python', 'ssd.py', 'W', str(FAKE_LBA), FAKE_DATA], capture_output=True, text=True)
+        self.assertIn(INVALID_COMMAND, result.stdout)
+
+        FAKE_DATA = '0x0000000G'
+        result = subprocess.run(['python', 'ssd.py', 'W', str(FAKE_LBA), FAKE_DATA], capture_output=True, text=True)
+        self.assertIn(INVALID_COMMAND, result.stdout)
