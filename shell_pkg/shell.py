@@ -1,4 +1,3 @@
-import os
 from command import InvalidCommand, ExitCommand, HelpCommand, WriteCommand, ReadCommand, FullreadCommand, \
     FullwriteCommand, TestApp1Command, TestApp2Command
 
@@ -26,25 +25,19 @@ class Shell:
         elif args[0] == 'help':
             return HelpCommand()
         elif args[0] == 'write':
-            return WriteCommand(self.__virtual_ssd_file_path, args)
+            return WriteCommand(args)
         elif args[0] == 'read':
-            return ReadCommand(self.__virtual_ssd_file_path, args)
+            return ReadCommand(args)
         elif args[0] == 'fullwrite':
-            return FullwriteCommand(self.__virtual_ssd_file_path, args)
+            return FullwriteCommand(args)
         elif args[0] == 'fullread':
-            return FullreadCommand(self.__virtual_ssd_file_path)
+            return FullreadCommand(args)
         elif args[0] == 'testapp1':
-            return TestApp1Command(self.__virtual_ssd_file_path)
+            return TestApp1Command(args)
         elif args[0] == 'testapp2':
-            return TestApp2Command(self.__virtual_ssd_file_path)
+            return TestApp2Command(args)
         else:
             return InvalidCommand()
-
-    def set_virtual_ssd_file_path(self, file_path):
-        self.__virtual_ssd_file_path = file_path
-
-    def get_virtual_ssd_file_path(self):
-        return self.__virtual_ssd_file_path
 
 
 if __name__ == '__main__':
