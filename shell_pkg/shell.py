@@ -1,5 +1,5 @@
 import os
-from command import InvalidCommand, ExitCommand, HelpCommand, ReadCommand, FullWriteCommand
+from command import InvalidCommand, ExitCommand, HelpCommand, ReadCommand, FullwriteCommand
 
 
 class Shell:
@@ -23,8 +23,8 @@ class Shell:
             return HelpCommand()
         elif args[0] == 'read':
             return ReadCommand(self.__virtual_ssd_file_path, args[1])
-        elif args[0] == 'fullwrite' and len(args) == 2:
-            return FullWriteCommand(args[1])
+        elif args[0] == 'fullwrite':
+            return FullwriteCommand(self.__virtual_ssd_file_path, args)
         else:
             return InvalidCommand()
 
