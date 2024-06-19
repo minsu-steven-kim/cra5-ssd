@@ -2,7 +2,8 @@ import os.path
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from command import WriteCommand, HelpCommand, ReadCommand, FullwriteCommand, FullreadCommand
+
+from command import WriteCommand, HelpCommand, ReadCommand, FullwriteCommand, FullreadCommand, TestApp1Command
 from shell import Shell
 
 import io
@@ -167,3 +168,30 @@ class TestShell(TestCase):
         fullread_command = FullreadCommand(TEST_SSD_FILE_PATH)
         fullread_command.execute()
         self.assertEqual(mock_execute.call_count, 100)
+
+    @patch.object(FullwriteCommand, 'execute')
+    def test_app1_calling_fullwrite(self, mock_execute):
+        testapp1 = TestApp1Command(TEST_SSD_FILE_PATH)
+        testapp1.execute()
+        self.assertEqual(mock_execute.call_count, 1)
+
+    @patch.object(FullreadCommand, 'execute')
+    def test_app1_calling_fullread(self, mock_execute):
+        testapp1 = TestApp1Command(TEST_SSD_FILE_PATH)
+        testapp1.execute()
+        self.assertEqual(mock_execute.call_count, 1)
+
+    def test_app1_compare_value(self):
+        output = io.StringIO()
+        original_stdout = sys.stdout
+        sys.stdout = output
+
+        try:
+            testapp1 = TestApp1Command(TEST_SSD_FILE_PATH)
+            testapp1.execute()
+        finally:
+            sys.stdout = original_stdout
+
+        captured_output = output.getvalue()
+        expected = '0xABCDFFFF\n' * 100
+        self.assertEqual(captured_output, expected)

@@ -1,3 +1,5 @@
+import io
+import sys
 from abc import ABC, abstractmethod
 import re
 import os
@@ -157,3 +159,15 @@ class FullreadCommand(Command):
         for lba in range(100):
             read_cmd = ReadCommand(self.filepath, ['read', str(lba)])
             read_cmd.execute()
+
+class TestApp1Command(Command):
+    def __init__(self, filepath):
+        self.filepath = filepath
+        self.testValue = '0xABCDFFFF'
+        self.validationValue = '0xABCDFFFF\n' * 100
+
+    def execute(self):
+        fullWrite = FullwriteCommand(self.filepath, ['fullwrite', self.testValue])
+        fullWrite.execute()
+        fullRead = FullreadCommand(self.filepath)
+        fullRead.execute()
