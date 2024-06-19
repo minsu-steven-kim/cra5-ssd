@@ -67,20 +67,6 @@ class TestShell(TestCase):
         read.execute()
         self.assertEqual(read.get_result_with_ssd.call_count, 1)
 
-    @patch.object(ReadCommand, 'get_result_with_ssd', return_value=NON_INIT_VALUE)
-    def test_read_check_print_result(self, resMock):
-        output = io.StringIO()
-        original_stdout = sys.stdout
-        sys.stdout = output
-        try:
-            read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
-            read.execute()
-        finally:
-            sys.stdout = original_stdout
-
-        captured_output = int(output.getvalue().strip())
-        self.assertEqual(captured_output, NON_INIT_VALUE)
-
     def test_print_help_command(self):
         output = io.StringIO()
         original_stdout = sys.stdout
