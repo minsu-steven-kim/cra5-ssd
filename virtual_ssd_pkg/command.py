@@ -28,7 +28,7 @@ class Command(ABC):
     def is_invalid_value(self, value: str):
         if type(value) != str:
             return True
-        return not bool(re.match(r'0x[0-9A-F]{8}$', value))
+        return not bool(re.match(r'^0x[0-9A-F]{8}$', value))
 
 
 class WriteCommand(Command):
