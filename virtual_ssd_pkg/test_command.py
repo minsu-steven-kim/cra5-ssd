@@ -47,3 +47,10 @@ class TestCommand(TestCase):
         self.command.execute(args)
         expected = self.command.NAND_TXT.load()[FAKE_LBA * line_len:(FAKE_LBA + 1) * line_len - 1]
         self.assertEqual(expected, FAKE_DATA)
+
+    def test_write_command_LBA_50(self):
+        FAKE_LBA = 50
+        args = ['W',str(FAKE_LBA),FAKE_DATA]
+        self.command.execute(args)
+        expected = self.command.NAND_TXT.load()[FAKE_LBA * line_len:(FAKE_LBA + 1) * line_len - 1]
+        self.assertEqual(expected, FAKE_DATA)
