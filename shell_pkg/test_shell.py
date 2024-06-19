@@ -9,7 +9,7 @@ import io
 import sys
 
 INVALID_LBA = "100"
-INVALID_TYPE_LAB = 10
+INVALID_TYPE_LBA = 10
 VALID_LBA = "3"
 VALID_VALUE = "0xAAAABBBB"
 INVALID_RANGE_VALUE = "0xAAABBB"
@@ -33,7 +33,7 @@ class TestShell(TestCase):
 
     def test_write_invalid_type_lab(self):
         with self.assertRaises(Exception) as context:
-            self.wc.set_lba(INVALID_TYPE_LAB)
+            self.wc.set_lba(INVALID_TYPE_LBA)
             self.wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
