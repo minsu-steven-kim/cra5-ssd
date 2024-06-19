@@ -25,9 +25,6 @@ class Command(ABC):
             return True
         return not bool(re.match(r'0x[0-9A-F]{8}$', value))
 
-    def run_command(self, cmd):
-        os.system(cmd)
-
 
 class ExitCommand(Command):
     def execute(self):
@@ -105,10 +102,12 @@ class WriteCommand(Command):
         return f"python {self.__file_path} W {self.__lba} {self.__value}"
 
 
+
 class ReadCommand(Command):
     def __init__(self, filepath, lba):
         self.lba = lba
         self.filepath = filepath
+
     def execute(self):
         if self.is_invalid_lba(self.lba):
             raise Exception("INVALID COMMAND")
@@ -116,12 +115,24 @@ class ReadCommand(Command):
             raise FileExistsError("VIRTUAL_FILE_PATH_ERROR")
         self.send_cmd_to_ssd()
         print(self.get_result_with_ssd())
+
     def get_result_with_ssd(self):
         with open('result.txt', 'r') as f:
             return f.read()
+
     def create_command(self):
         return f"python {self.filepath} ssd R {self.lba}"
 
     def send_cmd_to_ssd(self):
         cmd = self.create_command()
         self.run_command(cmd)
+
+
+class FullreadCommand(Command):
+    def __init__(self, filepath):
+        self.filepath = filepath
+
+    def execute(self):
+        for lba in range(100):
+            read_cmd = ReadCommand(self.filepath, str(lba))
+            read_cmd.execute()
