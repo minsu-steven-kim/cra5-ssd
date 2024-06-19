@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
 import re
+from abc import ABC, abstractmethod
 
 from virtual_ssd_pkg.file_io import FileIO
 
