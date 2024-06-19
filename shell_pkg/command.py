@@ -147,7 +147,7 @@ class FullwriteCommand(Command):
             raise Exception("INVALID COMMAND")
 
         for lba in range(100):
-            WriteCommand(self.filepath, str(lba), self.__value).execute()
+            WriteCommand(self.filepath, ['write', str(lba), self.__value]).execute()
 
 class FullreadCommand(Command):
     def __init__(self, filepath):
