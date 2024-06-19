@@ -43,4 +43,12 @@ class TestVirtualSSD(TestCase):
 
         result = os.system('python ssd.py W 100 0x00000000')
         self.assertEqual(result, 1)
+    @patch('os.system')
+    def test_write_with_cli_invalid_data_range(self, mock_system):
+        mock_system.return_value = 1
+        result = os.system('python ssd.py W 0 0000000000')
+        self.assertEqual(result, 1)
+
+        result = os.system('python ssd.py W 0 0x0000000H')
+        self.assertEqual(result, 1)
 
