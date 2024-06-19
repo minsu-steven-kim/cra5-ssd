@@ -20,3 +20,9 @@ class TestCommand(TestCase):
 
         with self.assertRaises(Exception):
             self.command.execute(args)
+
+    def test_write_command_invalid_data(self):
+        args = 'ssd W 0 0000000000'
+
+        with self.assertRaises(Exception):
+            self.command.execute(args)
