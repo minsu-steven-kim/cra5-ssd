@@ -1,6 +1,6 @@
 import os
 
-from command import InvalidCommand, ExitCommand
+from command import InvalidCommand, ExitCommand, ReadCommand
 
 
 class Shell:
@@ -21,7 +21,7 @@ class Shell:
         elif args[0] == 'exit':
             return ExitCommand()
         elif args[0] == 'read':
-            return
+            return ReadCommand(self.__virtual_ssd_file_path, args[1])
         else:
             return InvalidCommand()
 
@@ -69,20 +69,6 @@ class Shell:
 
     def run_command(self, cmd):
         os.system(cmd)
-
-    def read(self, lba):
-        if self.is_invalid_lba(lba):
-            raise Exception("INVALID COMMAND")
-        self.send_cmd_to_ssd()
-        print(self.get_result_with_ssd())
-
-    def send_cmd_to_ssd(self):
-        pass
-
-    def get_result_with_ssd(self):
-        with open('result.txt', 'r') as f:
-            return f.read()
-
 
 if __name__ == '__main__':
     shell = Shell()

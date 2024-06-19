@@ -51,13 +51,13 @@ class TestShell(TestCase):
     @patch.object(ReadCommand, 'get_result_with_ssd', return_value = NON_INIT_VALUE)
     @patch.object(ReadCommand, 'send_cmd_to_ssd')
     def test_read_calling_send_cmd_to_ssd(self,sendMock, resMock):
-        read = ReadCommand(3)
+        read = ReadCommand("../virtual_ssd_pkg/ssd.py", 3)
         read.execute()
         self.assertEqual(read.send_cmd_to_ssd.call_count, 1)
 
     @patch.object(ReadCommand, 'get_result_with_ssd', return_value = NON_INIT_VALUE)
     def test_read_calling_get_result_with_ssd(self, resMock):
-        read = ReadCommand(3)
+        read = ReadCommand("../virtual_ssd_pkg/ssd.py", 3)
         read.execute()
         self.assertEqual(read.get_result_with_ssd.call_count, 1)
 
@@ -67,7 +67,7 @@ class TestShell(TestCase):
         original_stdout = sys.stdout
         sys.stdout = output
         try:
-            read = ReadCommand(3)
+            read = ReadCommand("../virtual_ssd_pkg/ssd.py", 3)
             read.execute()
         finally:
             sys.stdout = original_stdout
@@ -102,10 +102,17 @@ class TestShell(TestCase):
     def test_read_check_invalid_lba(self,resMock):
         lba = 100
         with self.assertRaises(Exception) as context:
-            read = ReadCommand(lba)
+            read = ReadCommand("../virtual_ssd_pkg/ssd.py", lba)
             read.execute()
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_read_check_no_file(self):
         with self.assertRaises(FileNotFoundError):
-            self.vs.read(3)
+            read = ReadCommand("../virtual_ssd_pkg/ssd.py", 3)
+            read.execute()
+
+    def test_read_create_command(self):
+        read = ReadCommand("../virtual_ssd_pkg/ssd.py", 3)
+        actual = read.create_command()
+        expected = f"python ../virtual_ssd_pkg/ssd.py ssd R 3"
+        self.assertEqual(actual, expected)

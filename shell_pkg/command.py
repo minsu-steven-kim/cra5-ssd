@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-
+import os
 
 class Command(ABC):
     @abstractmethod
@@ -18,8 +18,9 @@ class InvalidCommand(Command):
         return 0
 
 class ReadCommand(Command):
-    def __init__(self, lba):
+    def __init__(self, filepath, lba):
         self.lba = lba
+        self.filepath = filepath
     def execute(self):
         if self.is_invalid_lba(self.lba):
             raise Exception("INVALID COMMAND")
@@ -28,8 +29,15 @@ class ReadCommand(Command):
     def get_result_with_ssd(self):
         with open('result.txt', 'r') as f:
             return f.read()
+    def create_command(self):
+        return f"python {self.filepath} ssd R {self.lba}"
+
+    def run_command(self, cmd):
+        os.system(cmd)
+
     def send_cmd_to_ssd(self):
-        pass
+        cmd = self.create_command()
+        self.run_command(cmd)
 
     def is_invalid_lba(self, lba):
         if type(lba) != int:
