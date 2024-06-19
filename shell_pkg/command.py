@@ -61,7 +61,7 @@ class WriteCommand(Command):
         self.file_path = file_path
 
     def execute(self):
-        if self.is_valid_parameter():
+        if self.is_invalid_parameter():
             raise Exception("INVALID COMMAND")
         if not os.path.exists(self.file_path):
             raise FileExistsError("VIRTUAL_FILE_PATH_ERROR")
@@ -72,7 +72,7 @@ class WriteCommand(Command):
     def set_write_cmd_line(self, lba, value):
         self.cmd = f"python {self.__virtual_ssd_file_path} ssd W {lba} {value}"
 
-    def is_valid_parameter(self):
+    def is_invalid_parameter(self):
         if self.is_invalid_lba(self.lba):
             return True
         if self.is_invalid_value(self.value):
