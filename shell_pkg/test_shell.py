@@ -2,7 +2,7 @@ import os.path
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from command import WriteCommand, HelpCommand, ReadCommand
+from command import WriteCommand, HelpCommand, ReadCommand, FullreadCommand
 from shell import Shell
 
 import io
@@ -12,6 +12,7 @@ INVALID_LBA = "100"
 VALID_LBA = "3"
 TEST_SSD_FILE_PATH = "../virtual_ssd_pkg/ssd.py"
 NON_INIT_VALUE = 0xAAAABBBB
+
 
 class TestShell(TestCase):
     def setUp(self):
@@ -51,20 +52,20 @@ class TestShell(TestCase):
             self.wc.set_file_path("123.py")
             self.wc.execute()
 
-    @patch.object(ReadCommand, 'get_result_with_ssd', return_value = NON_INIT_VALUE)
+    @patch.object(ReadCommand, 'get_result_with_ssd', return_value=NON_INIT_VALUE)
     @patch.object(ReadCommand, 'send_cmd_to_ssd')
-    def test_read_calling_send_cmd_to_ssd(self,sendMock, resMock):
+    def test_read_calling_send_cmd_to_ssd(self, sendMock, resMock):
         read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
         read.execute()
         self.assertEqual(read.send_cmd_to_ssd.call_count, 1)
 
-    @patch.object(ReadCommand, 'get_result_with_ssd', return_value = NON_INIT_VALUE)
+    @patch.object(ReadCommand, 'get_result_with_ssd', return_value=NON_INIT_VALUE)
     def test_read_calling_get_result_with_ssd(self, resMock):
         read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
         read.execute()
         self.assertEqual(read.get_result_with_ssd.call_count, 1)
 
-    @patch.object(ReadCommand, 'get_result_with_ssd', return_value =NON_INIT_VALUE)
+    @patch.object(ReadCommand, 'get_result_with_ssd', return_value=NON_INIT_VALUE)
     def test_read_check_print_result(self, resMock):
         output = io.StringIO()
         original_stdout = sys.stdout
@@ -123,7 +124,7 @@ class TestShell(TestCase):
         mock.run_command.assert_called_with(cmd)
 
     @patch.object(ReadCommand, 'get_result_with_ssd', return_value=NON_INIT_VALUE)
-    def test_read_check_invalid_lba(self,resMock):
+    def test_read_check_invalid_lba(self, resMock):
         lba = INVALID_LBA
         with self.assertRaises(Exception) as context:
             read = ReadCommand("../virtual_ssd_pkg/ssd.py", lba)
@@ -140,3 +141,9 @@ class TestShell(TestCase):
         actual = read.create_command()
         expected = f"python ../virtual_ssd_pkg/ssd.py ssd R 3"
         self.assertEqual(actual, expected)
+
+    @patch.object(ReadCommand, 'execute')
+    def test_fullread_with_mocked_read_commands(self, mock_execute):
+        fullread_command = FullreadCommand(TEST_SSD_FILE_PATH)
+        fullread_command.execute()
+        self.assertEqual(mock_execute.call_count, 100)
