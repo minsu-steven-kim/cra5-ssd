@@ -151,15 +151,14 @@ class FullreadCommand(Command):
             read_cmd.execute()
 
 class TestApp1Command(Command):
-    def __init__(self, filepath, args):
+    def __init__(self, args):
         if len(args) != 1:
             raise Exception("INVALID COMMAND")
-        self.filepath = filepath
         self.testValue = '0xABCDFFFF'
         self.validationValue = '0xABCDFFFF\n' * 100
 
     def execute(self):
         fullWrite = FullwriteCommand(['fullwrite', self.testValue])
         fullWrite.execute()
-        fullRead = FullreadCommand()
+        fullRead = FullreadCommand(['fullread'])
         fullRead.execute()
