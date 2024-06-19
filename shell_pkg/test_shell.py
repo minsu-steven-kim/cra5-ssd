@@ -2,6 +2,7 @@ import os.path
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from shell_pkg.shell import Shell
+from shell_pkg.command import HelpCommand
 import io
 import sys
 
@@ -90,3 +91,33 @@ class TestShell(TestCase):
 
         mock.run_command.assert_called_with(cmd)
         self.assertEqual(1, mock.run_command.call_count)
+
+    def test_print_help_command(self):
+        output = io.StringIO()
+        original_stdout = sys.stdout
+        sys.stdout = output
+
+        try:
+            HelpCommand().execute()
+        finally:
+            sys.stdout = original_stdout
+
+        captured_output = output.getvalue()
+        expected_output = """============================== Command Guide ==============================
+1) write [LBA] [value]
+: write [value] to [LBA].
+: [LBA] should be an integer between 0 and 99.
+: [value] should be in hexadecimal format between 0x00000000 and 0xFFFFFFFF.
+2) read [LBA]
+: read the value written to [LBA].
+3) fullwrite [value]
+: write [value] to all LBA(0~99).
+: [value] should be in hexadecimal format between 0x00000000 and 0xFFFFFFFF.
+4) fullread
+: read the all LBA(0~99) values.
+5) exit
+: quit the shell.
+6) help
+: see the command guide.
+"""
+        self.assertEqual(expected_output, captured_output)
