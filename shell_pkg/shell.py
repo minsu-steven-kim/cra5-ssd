@@ -3,9 +3,6 @@ from command import InvalidCommand, ExitCommand, HelpCommand, WriteCommand, Read
 
 
 class Shell:
-    def __init__(self):
-        self.__virtual_ssd_file_path = "../virtual_ssd_pkg/ssd.py"
-
     def run(self):
         is_exit = 0
         while not is_exit:
