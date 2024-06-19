@@ -7,8 +7,10 @@ from shell_pkg.shell import Shell
 import io
 import sys
 
+INVALID_LBA = 100
+VALID_LBA = 3
+TEST_SSD_FILE_PATH = "../virtual_ssd_pkg/ssd.py"
 NON_INIT_VALUE = 0xAAAABBBB
-
 
 class TestShell(TestCase):
     def setUp(self):
@@ -51,13 +53,13 @@ class TestShell(TestCase):
     @patch.object(ReadCommand, 'get_result_with_ssd', return_value = NON_INIT_VALUE)
     @patch.object(ReadCommand, 'send_cmd_to_ssd')
     def test_read_calling_send_cmd_to_ssd(self,sendMock, resMock):
-        read = ReadCommand("../virtual_ssd_pkg/ssd.py", 3)
+        read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
         read.execute()
         self.assertEqual(read.send_cmd_to_ssd.call_count, 1)
 
     @patch.object(ReadCommand, 'get_result_with_ssd', return_value = NON_INIT_VALUE)
     def test_read_calling_get_result_with_ssd(self, resMock):
-        read = ReadCommand("../virtual_ssd_pkg/ssd.py", 3)
+        read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
         read.execute()
         self.assertEqual(read.get_result_with_ssd.call_count, 1)
 
@@ -67,7 +69,7 @@ class TestShell(TestCase):
         original_stdout = sys.stdout
         sys.stdout = output
         try:
-            read = ReadCommand("../virtual_ssd_pkg/ssd.py", 3)
+            read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
             read.execute()
         finally:
             sys.stdout = original_stdout
@@ -100,7 +102,7 @@ class TestShell(TestCase):
 
     @patch.object(ReadCommand, 'get_result_with_ssd', return_value=NON_INIT_VALUE)
     def test_read_check_invalid_lba(self,resMock):
-        lba = 100
+        lba = INVALID_LBA
         with self.assertRaises(Exception) as context:
             read = ReadCommand("../virtual_ssd_pkg/ssd.py", lba)
             read.execute()
@@ -108,11 +110,11 @@ class TestShell(TestCase):
 
     def test_read_check_no_file(self):
         with self.assertRaises(FileNotFoundError):
-            read = ReadCommand("../virtual_ssd_pkg/ssd.py", 3)
+            read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
             read.execute()
 
     def test_read_create_command(self):
-        read = ReadCommand("../virtual_ssd_pkg/ssd.py", 3)
+        read = ReadCommand(TEST_SSD_FILE_PATH, VALID_LBA)
         actual = read.create_command()
         expected = f"python ../virtual_ssd_pkg/ssd.py ssd R 3"
         self.assertEqual(actual, expected)
