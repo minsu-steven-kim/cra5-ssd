@@ -1,7 +1,7 @@
 import re
 from abc import ABC, abstractmethod
 
-from constants import INVALID_COMMAND, NAND_FILE_PATH, RESULT_FILE_PATH
+from constants import INVALID_COMMAND, NAND_FILE_PATH, RESULT_FILE_PATH, MIN_LBA, MAX_LBA
 from file_io import FileIO
 
 
@@ -21,14 +21,14 @@ class Command(ABC):
             return True
         if not lba.isdigit():
             return True
-        if 0 > int(lba) or int(lba) > 99:
+        if  MIN_LBA > int(lba) or int(lba) > MAX_LBA:
             return True
         return False
 
     def is_invalid_value(self, value: str):
         if type(value) != str:
             return True
-        return not bool(re.match(r'0x[0-9A-F]{8}$', value))
+        return not bool(re.match(r'^0x[0-9A-F]{8}$', value))
 
 
 class WriteCommand(Command):
@@ -59,7 +59,7 @@ class ReadCommand(Command):
         if self.is_invalid_lba(args[1]):
             raise Exception(INVALID_COMMAND)
 
-        nand_file_data = ['0x00000000' for _ in range(100)]
+        nand_file_data = ['0x00000000' for _ in range(MAX_LBA + 1)]
         nand_file_io = FileIO(self.nand_file)
         nand_file_data_raw = nand_file_io.load().strip().split('\n')
 
