@@ -8,7 +8,7 @@ class FileIO:
                 if self.filename == 'result.txt':
                     return f.read()
                 file_read = f.read()
-                if len(file_read) < 1100:
+                if len(file_read) != 1100:
                     f.close()
                     file_read = self.initial_read()
                 return file_read
