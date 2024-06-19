@@ -157,3 +157,11 @@ class FullreadCommand(Command):
         for lba in range(100):
             read_cmd = ReadCommand(self.filepath, ['read', str(lba)])
             read_cmd.execute()
+
+class TestApp1(Command):
+    def __init__(self, filepath):
+        self.filepath = filepath
+
+    def execute(self):
+        fullWrite = FullwriteCommand(self.filepath, ['fullwrite', '0xABCDFFFF'])
+        fullWrite.execute()

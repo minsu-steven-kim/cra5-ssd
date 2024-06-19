@@ -3,7 +3,7 @@ from unittest import TestCase
 from unittest.mock import Mock, patch
 
 
-from command import WriteCommand, HelpCommand, ReadCommand, FullwriteCommand, FullreadCommand
+from command import WriteCommand, HelpCommand, ReadCommand, FullwriteCommand, FullreadCommand, TestApp1
 from shell import Shell
 
 import io
@@ -165,3 +165,9 @@ class TestShell(TestCase):
         fullread_command = FullreadCommand(TEST_SSD_FILE_PATH)
         fullread_command.execute()
         self.assertEqual(mock_execute.call_count, 100)
+
+    @patch.object(FullwriteCommand, 'execute')
+    def test_app1_calling_fullwrite(self, mock_execute):
+        testapp1 = TestApp1(TEST_SSD_FILE_PATH)
+        testapp1.execute()
+        self.assertEqual(mock_execute.call_count, 1)
