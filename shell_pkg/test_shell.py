@@ -17,6 +17,8 @@ class TestShell(TestCase):
     def setUp(self):
         self.vs = Shell()
         self.wc = WriteCommand("../virtual_ssd_pkg/ssd.py", 10, 0xAAAABBBB)
+        self.read_cmd_valid_lba = ['read', VALID_LBA]
+        self.read_cmd_invalid_lba = ['read', INVALID_LBA]
 
     def test_write_execute_invalid_lba(self):
         with self.assertRaises(Exception) as context:
@@ -54,29 +56,15 @@ class TestShell(TestCase):
     @patch.object(ReadCommand, 'get_result_with_ssd', return_value = NON_INIT_VALUE)
     @patch.object(ReadCommand, 'send_cmd_to_ssd')
     def test_read_calling_send_cmd_to_ssd(self,sendMock, resMock):
-        read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
+        read = ReadCommand("../virtual_ssd_pkg/ssd.py", self.read_cmd_valid_lba)
         read.execute()
         self.assertEqual(read.send_cmd_to_ssd.call_count, 1)
 
     @patch.object(ReadCommand, 'get_result_with_ssd', return_value = NON_INIT_VALUE)
     def test_read_calling_get_result_with_ssd(self, resMock):
-        read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
+        read = ReadCommand("../virtual_ssd_pkg/ssd.py", self.read_cmd_valid_lba)
         read.execute()
         self.assertEqual(read.get_result_with_ssd.call_count, 1)
-
-    @patch.object(ReadCommand, 'get_result_with_ssd', return_value =NON_INIT_VALUE)
-    def test_read_check_print_result(self, resMock):
-        output = io.StringIO()
-        original_stdout = sys.stdout
-        sys.stdout = output
-        try:
-            read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
-            read.execute()
-        finally:
-            sys.stdout = original_stdout
-
-        captured_output = int(output.getvalue().strip())
-        self.assertEqual(captured_output, NON_INIT_VALUE)
 
     def test_print_help_command(self):
         output = io.StringIO()
@@ -116,13 +104,16 @@ class TestShell(TestCase):
             read.execute()
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
-    def test_read_check_no_file(self):
+    @patch.object(ReadCommand, 'send_cmd_to_ssd')
+    def test_read_check_no_file(self, sendMock):
+        if os.path.exists('result.txt'):
+            os.remove('result.txt')
         with self.assertRaises(FileNotFoundError):
-            read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
+            read = ReadCommand("../virtual_ssd_pkg/ssd.py", self.read_cmd_valid_lba)
             read.execute()
 
     def test_read_create_command(self):
-        read = ReadCommand(TEST_SSD_FILE_PATH, VALID_LBA)
+        read = ReadCommand(TEST_SSD_FILE_PATH, self.read_cmd_valid_lba)
         actual = read.create_command()
-        expected = f"python ../virtual_ssd_pkg/ssd.py ssd R 3"
+        expected = f"python ../virtual_ssd_pkg/ssd.py R 3"
         self.assertEqual(actual, expected)

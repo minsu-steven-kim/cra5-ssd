@@ -22,7 +22,7 @@ class Shell:
         elif args[0] == 'help':
             return HelpCommand()
         elif args[0] == 'read':
-            return ReadCommand(self.__virtual_ssd_file_path, args[1])
+            return ReadCommand(self.__virtual_ssd_file_path, args)
         else:
             return InvalidCommand()
 

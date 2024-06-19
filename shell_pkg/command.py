@@ -86,9 +86,16 @@ class WriteCommand(Command):
         return f"python {self.file_path} ssd W {self.lba} {self.value}"
 
 class ReadCommand(Command):
-    def __init__(self, filepath, lba):
-        self.lba = lba
+    def __init__(self, filepath, args):
+        if not self.check_command_length(args):
+            raise Exception("INVALID COMMAND")
+        self.lba = args[1]
         self.filepath = filepath
+    def check_command_length(self, args):
+        if len(args) == 2:
+            return True
+        return False
+
     def execute(self):
         if self.is_invalid_lba(self.lba):
             raise Exception("INVALID COMMAND")
@@ -100,7 +107,7 @@ class ReadCommand(Command):
         with open('result.txt', 'r') as f:
             return f.read()
     def create_command(self):
-        return f"python {self.filepath} ssd R {self.lba}"
+        return f"python {self.filepath} R {self.lba}"
 
     def send_cmd_to_ssd(self):
         cmd = self.create_command()
