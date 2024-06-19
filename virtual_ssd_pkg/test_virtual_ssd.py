@@ -34,3 +34,13 @@ class TestVirtualSSD(TestCase):
         mock_system.return_value = 0
         result = os.system('python ssd.py W 1 0x00000000')
         self.assertEqual(result, 0)
+
+    @patch('os.system')
+    def test_write_with_cli_invalid_lba_range(self, mock_system):
+        mock_system.return_value = 1
+        result = os.system('python ssd.py W -1 0x00000000')
+        self.assertEqual(result, 1)
+
+        result = os.system('python ssd.py W 100 0x00000000')
+        self.assertEqual(result, 1)
+
