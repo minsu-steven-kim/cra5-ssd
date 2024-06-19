@@ -22,10 +22,14 @@ class Command(ABC):
             return True
         return not bool(re.match(r'0x[0-9A-F]{8}$', value))
 
+    def run_command(self, cmd):
+        os.system(cmd)
+
 
 class ExitCommand(Command):
     def execute(self):
         return 1
+
 
 class HelpCommand(Command):
     def execute(self):
@@ -78,9 +82,6 @@ class WriteCommand(Command):
         if self.is_invalid_value(self.value):
             return True
         return False
-
-    def run_command(self, cmd):
-        os.system(cmd)
 
     def get_write_cmd_line(self):
         return f"python {self.file_path} ssd W {self.lba} {self.value}"
