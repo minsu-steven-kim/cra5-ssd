@@ -18,3 +18,5 @@ HELP_MESSAGE = """============================== Command Guide =================
 : quit the shell.
 6) help
 : see the command guide."""
+MIN_LBA = 0
+MAX_LBA = 99

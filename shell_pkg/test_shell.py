@@ -79,7 +79,7 @@ class TestShell(TestCase):
         sys.stdout = output
 
         try:
-            HelpCommand().execute()
+            HelpCommand(['help']).execute()
         finally:
             sys.stdout = original_stdout
 

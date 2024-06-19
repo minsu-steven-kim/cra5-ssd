@@ -2,7 +2,8 @@ from abc import ABC, abstractmethod
 import re
 import os
 
-from constants import SSD_FILE_PATH, RESULT_FILE_PATH, INVALID_COMMAND, HELP_MESSAGE
+from constants import SSD_FILE_PATH, RESULT_FILE_PATH, INVALID_COMMAND, HELP_MESSAGE, \
+    MIN_LBA, MAX_LBA
 
 
 class Command(ABC):
@@ -15,7 +16,7 @@ class Command(ABC):
             return True
         if not lba.isdigit():
             return True
-        if 0 > int(lba) or int(lba) > 99:
+        if MIN_LBA > int(lba) or int(lba) > MAX_LBA:
             return True
         return False
 
@@ -141,7 +142,7 @@ class FullwriteCommand(Command):
         if self.is_invalid_value(self.__value):
             raise Exception(INVALID_COMMAND)
 
-        for lba in range(100):
+        for lba in range(MAX_LBA + 1):
             WriteCommand(['write', str(lba), self.__value]).execute()
 
 
@@ -151,7 +152,7 @@ class FullreadCommand(Command):
             raise Exception("INVALID COMMAND")
 
     def execute(self):
-        for lba in range(100):
+        for lba in range(MAX_LBA + 1):
             read_cmd = ReadCommand(['read', str(lba)])
             read_cmd.execute()
 
@@ -161,7 +162,7 @@ class TestApp1Command(Command):
         if len(args) != 1:
             raise Exception("INVALID COMMAND")
         self.testValue = '0xABCDFFFF'
-        self.validationValue = '0xABCDFFFF\n' * 100
+        self.validationValue = '0xABCDFFFF\n' * (MAX_LBA + 1)
 
     def execute(self):
         fullWrite = FullwriteCommand(['fullwrite', self.testValue])
