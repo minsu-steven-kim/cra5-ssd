@@ -1,10 +1,9 @@
-import io
-import sys
 from abc import ABC, abstractmethod
 import re
 import os
 
 from constants import SSD_FILE_PATH, RESULT_FILE_PATH, INVALID_COMMAND, HELP_MESSAGE
+
 
 class Command(ABC):
     @abstractmethod
@@ -156,6 +155,7 @@ class FullreadCommand(Command):
             read_cmd = ReadCommand(['read', str(lba)])
             read_cmd.execute()
 
+
 class TestApp1Command(Command):
     def __init__(self, args):
         if len(args) != 1:
@@ -168,3 +168,33 @@ class TestApp1Command(Command):
         fullWrite.execute()
         fullRead = FullreadCommand(['fullread'])
         fullRead.execute()
+
+
+class TestApp2Command(Command):
+    def __init__(self, args):
+        if len(args) != 1:
+            raise Exception("INVALID COMMAND")
+
+    def write_test1(self):
+        args_list = [['write', str(i), '0xAAAABBBB'] for i in range(6)]
+        for args in args_list:
+            write_command = WriteCommand(args)
+            for i in range(30):
+                write_command.execute()
+
+    def write_test2(self):
+        args_list = [['write', str(i), '0x12345678'] for i in range(6)]
+        for args in args_list:
+            write_command = WriteCommand(args)
+            write_command.execute()
+
+    def read_test(self):
+        args_list = [['read', str(i)] for i in range(6)]
+        for args in args_list:
+            read_command = ReadCommand(args)
+            read_command.execute()
+
+    def execute(self):
+        self.write_test1()
+        self.write_test2()
+        self.read_test()

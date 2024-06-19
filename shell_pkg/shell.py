@@ -1,5 +1,5 @@
 from command import InvalidCommand, ExitCommand, HelpCommand, WriteCommand, ReadCommand, FullreadCommand, \
-    FullwriteCommand, TestApp1Command
+    FullwriteCommand, TestApp1Command, TestApp2Command
 
 
 class Shell:
@@ -34,6 +34,8 @@ class Shell:
             return FullreadCommand(args)
         elif args[0] == 'testapp1':
             return TestApp1Command(args)
+        elif args[0] == 'testapp2':
+            return TestApp2Command(args)
         else:
             return InvalidCommand()
 

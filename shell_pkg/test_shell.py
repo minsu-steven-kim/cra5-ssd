@@ -2,14 +2,13 @@ import os.path
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-
 import io
 import sys
 
 from constants import INVALID_COMMAND, SSD_FILE_PATH, RESULT_FILE_PATH, HELP_MESSAGE
-from command import WriteCommand, HelpCommand, ReadCommand, FullwriteCommand, FullreadCommand, TestApp1Command
+from command import WriteCommand, HelpCommand, ReadCommand, FullwriteCommand, FullreadCommand, TestApp1Command, \
+    TestApp2Command
 from shell import Shell
-
 
 INVALID_LBA = "100"
 INVALID_TYPE_LBA = 10
@@ -152,21 +151,44 @@ class TestShell(TestCase):
 
     @patch.object(ReadCommand, 'execute')
     def test_fullread_with_mocked_read_commands(self, mock_execute):
-        fullread_command = FullreadCommand()
+        fullread_command = FullreadCommand(['fullread'])
         fullread_command.execute()
         self.assertEqual(mock_execute.call_count, 100)
 
-    @patch.object(FullwriteCommand, 'execute')
-    def test_app1_calling_fullwrite(self, mock_execute):
-        testapp1 = TestApp1Command(TEST_SSD_FILE_PATH)
-        testapp1.execute()
-        self.assertEqual(mock_execute.call_count, 1)
+    @patch.object(WriteCommand, 'execute')
+    def test_app2_calling_write_command(self, mock_execute):
+        testapp2 = TestApp2Command(['testapp2'])
+        testapp2.execute()
+        self.assertEqual(mock_execute.call_count, 186)
 
+    @patch.object(ReadCommand, 'execute')
+    def test_app2_calling_read_command(self, mock_execute):
+        testapp2 = TestApp2Command(['testapp2'])
+        testapp2.execute()
+        self.assertEqual(mock_execute.call_count, 6)
+
+    def test_app2_compare_value(self):
+        output = io.StringIO()
+        original_stdout = sys.stdout
+        sys.stdout = output
+
+        try:
+            testapp1 = TestApp2Command(['testapp2'])
+            testapp1.execute()
+        finally:
+            sys.stdout = original_stdout
+
+        captured_output = output.getvalue()
+        expected = '0x12345678\n' * 6
+        self.assertEqual(captured_output, expected)
+
+    @patch.object(FullwriteCommand, 'execute')
     @patch.object(FullreadCommand, 'execute')
-    def test_app1_calling_fullread(self, mock_execute):
-        testapp1 = TestApp1Command(TEST_SSD_FILE_PATH)
+    def test_app1_calling_fullwrite_and_fullread(self, mock_fullread_execute, mock_fullwrite_execute):
+        testapp1 = TestApp1Command(['testapp1'])
         testapp1.execute()
-        self.assertEqual(mock_execute.call_count, 1)
+        self.assertEqual(mock_fullread_execute.call_count, 1)
+        self.assertEqual(mock_fullwrite_execute.call_count, 1)
 
     def test_app1_compare_value(self):
         output = io.StringIO()
@@ -174,7 +196,7 @@ class TestShell(TestCase):
         sys.stdout = output
 
         try:
-            testapp1 = TestApp1Command(TEST_SSD_FILE_PATH)
+            testapp1 = TestApp1Command(['testapp1'])
             testapp1.execute()
         finally:
             sys.stdout = original_stdout
