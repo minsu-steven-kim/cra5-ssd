@@ -21,11 +21,11 @@ class Shell:
             return ExitCommand()
         elif args[0] == 'help':
             return HelpCommand()
-        elif args[0] == 'write':
+        elif args[0] == 'write' and len(args) == 3:
             return WriteCommand(self.__virtual_ssd_file_path, args[1], args[2])
         else:
             return InvalidCommand()
-
+티
     def set_virtual_ssd_file_path(self, file_path):
         self.__virtual_ssd_file_path = file_path
 
