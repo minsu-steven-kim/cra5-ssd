@@ -11,7 +11,7 @@ class VirtualSSD:
         self.result_file = 'result.txt'
 
     def run(self):
-        args = ['ssd'] + sys.argv[1:]
+        args = sys.argv[1:]
         cmd = self.determine_cmd(args)
         cmd.execute(args)
 
