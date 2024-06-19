@@ -1,8 +1,7 @@
 import sys
 
+from constants import INVALID_COMMAND
 from command import InvalidCommand, WriteCommand, ReadCommand
-
-INVALID_COMMAND = "INVALID COMMAND"
 
 
 class VirtualSSD:
