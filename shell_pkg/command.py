@@ -140,5 +140,5 @@ class FullreadCommand(Command):
 
     def execute(self):
         for lba in range(100):
-            read_cmd = ReadCommand(self.filepath, str(lba))
+            read_cmd = ReadCommand(self.filepath, ['read', str(lba)])
             read_cmd.execute()

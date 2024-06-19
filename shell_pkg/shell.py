@@ -1,5 +1,5 @@
 import os
-from command import InvalidCommand, ExitCommand, HelpCommand, ReadCommand
+from command import InvalidCommand, ExitCommand, HelpCommand, WriteCommand, ReadCommand, FullreadCommand
 
 
 class Shell:
