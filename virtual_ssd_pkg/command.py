@@ -1,15 +1,14 @@
 import re
 from abc import ABC, abstractmethod
 
+from constants import INVALID_COMMAND, NAND_FILE_PATH, RESULT_FILE_PATH
 from file_io import FileIO
-
-INVALID_COMMAND = "INVALID COMMAND"
 
 
 class Command(ABC):
     def __init__(self):
-        self.nand_file = 'nand.txt'
-        self.result_file = 'result.txt'
+        self.nand_file = NAND_FILE_PATH
+        self.result_file = RESULT_FILE_PATH
 
     @abstractmethod
     def execute(self, args):

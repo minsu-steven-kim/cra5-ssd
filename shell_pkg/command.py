@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 import re
 import os
 
+from constants import SSD_FILE_PATH, RESULT_FILE_PATH, INVALID_COMMAND, HELP_MESSAGE
 
 class Command(ABC):
     @abstractmethod
@@ -32,24 +33,10 @@ class ExitCommand(Command):
     def execute(self):
         return 1
 
+
 class HelpCommand(Command):
     def execute(self):
-        print("""============================== Command Guide ==============================
-1) write [LBA] [value]
-: write [value] to [LBA].
-: [LBA] should be an integer between 0 and 99.
-: [value] should be in hexadecimal format between 0x00000000 and 0xFFFFFFFF.
-2) read [LBA]
-: read the value written to [LBA].
-3) fullwrite [value]
-: write [value] to all LBA(0~99).
-: [value] should be in hexadecimal format between 0x00000000 and 0xFFFFFFFF.
-4) fullread
-: read the all LBA(0~99) values.
-5) exit
-: quit the shell.
-6) help
-: see the command guide.""")
+        print(HELP_MESSAGE)
         return 0
 
 
@@ -60,12 +47,12 @@ class InvalidCommand(Command):
 
 
 class WriteCommand(Command):
-    def __init__(self, file_path, args):
+    def __init__(self, args):
         if len(args) != 3:
-            raise Exception("INVALID COMMAND")
+            raise Exception(INVALID_COMMAND)
         self.__lba = args[1]
         self.__value = args[2]
-        self.__file_path = file_path
+        self.__file_path = SSD_FILE_PATH
 
     def get_lba(self):
         return self.__lba
@@ -87,9 +74,9 @@ class WriteCommand(Command):
 
     def execute(self):
         if self.is_invalid_parameter():
-            raise Exception("INVALID COMMAND")
+            raise Exception(INVALID_COMMAND)
         if not os.path.exists(self.__file_path):
-            raise FileExistsError("VIRTUAL_FILE_PATH_ERROR")
+            raise FileExistsError("VIRTUAL_SSD_PATH_ERROR")
 
         cmd = self.get_write_cmd_line()
         self.run_command(cmd)
@@ -105,13 +92,13 @@ class WriteCommand(Command):
         return f"python {self.__file_path} W {self.__lba} {self.__value}"
 
 
-
 class ReadCommand(Command):
-    def __init__(self, filepath, args):
+    def __init__(self, args):
         if not self.check_command_length(args):
-            raise Exception("INVALID COMMAND")
+            raise Exception(INVALID_COMMAND)
         self.lba = args[1]
-        self.filepath = filepath
+        self.ssd_filepath = SSD_FILE_PATH
+        self.result_filepath = RESULT_FILE_PATH
 
     def check_command_length(self, args):
         if len(args) == 2:
@@ -120,46 +107,47 @@ class ReadCommand(Command):
 
     def execute(self):
         if self.is_invalid_lba(self.lba):
-            raise Exception("INVALID COMMAND")
-        if not os.path.exists(self.filepath):
-            raise FileExistsError("VIRTUAL_FILE_PATH_ERROR")
+            raise Exception(INVALID_COMMAND)
+        if not os.path.exists(self.ssd_filepath):
+            raise FileExistsError("VIRTUAL_SSD_PATH_ERROR")
         self.send_cmd_to_ssd()
         print(self.get_result_with_ssd())
 
     def get_result_with_ssd(self):
-        with open('result.txt', 'r') as f:
+        with open(self.result_filepath, 'r') as f:
             return f.read()
 
     def create_command(self):
-        return f"python {self.filepath} R {self.lba}"
+        return f"python {self.ssd_filepath} R {self.lba}"
 
     def send_cmd_to_ssd(self):
         cmd = self.create_command()
         self.run_command(cmd)
 
+
 class FullwriteCommand(Command):
-    def __init__(self, filepath, args):
+    def __init__(self, args):
         if len(args) != 2:
-            raise Exception("INVALID COMMAND")
-        self.filepath = filepath
+            raise Exception(INVALID_COMMAND)
         self.__value = args[1]
+        self.__filepath = SSD_FILE_PATH
 
     def execute(self):
         if self.is_invalid_value(self.__value):
-            raise Exception("INVALID COMMAND")
+            raise Exception(INVALID_COMMAND)
 
         for lba in range(100):
-            WriteCommand(self.filepath, ['write', str(lba), self.__value]).execute()
+            WriteCommand(['write', str(lba), self.__value]).execute()
+
 
 class FullreadCommand(Command):
-    def __init__(self, filepath, args):
+    def __init__(self, args):
         if len(args) != 1:
             raise Exception("INVALID COMMAND")
-        self.filepath = filepath
 
     def execute(self):
         for lba in range(100):
-            read_cmd = ReadCommand(self.filepath, ['read', str(lba)])
+            read_cmd = ReadCommand(['read', str(lba)])
             read_cmd.execute()
 
 class TestApp1Command(Command):
@@ -171,7 +159,7 @@ class TestApp1Command(Command):
         self.validationValue = '0xABCDFFFF\n' * 100
 
     def execute(self):
-        fullWrite = FullwriteCommand(self.filepath, ['fullwrite', self.testValue])
+        fullWrite = FullwriteCommand(['fullwrite', self.testValue])
         fullWrite.execute()
-        fullRead = FullreadCommand(self.filepath)
+        fullRead = FullreadCommand()
         fullRead.execute()

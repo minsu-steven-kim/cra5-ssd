@@ -1,3 +1,6 @@
+from constants import RESULT_FILE_PATH
+
+
 class FileIO:
     def __init__(self, filename):
         self.filename = filename
@@ -5,7 +8,7 @@ class FileIO:
     def load(self):
         try:
             with open(self.filename, 'r') as f:
-                if self.filename == 'result.txt':
+                if self.filename == RESULT_FILE_PATH:
                     return f.read()
                 file_read = f.read()
                 if len(file_read) != 1100:
@@ -20,9 +23,9 @@ class FileIO:
             f.write(data)
 
     def initial_read(self):
-        f = open(self.filename,'w')
+        f = open(self.filename, 'w')
         for i in range(100):
             f.write("0x00000000\n")
         f.close()
-        f = open(self.filename,'r')
+        f = open(self.filename, 'r')
         return f.read()
