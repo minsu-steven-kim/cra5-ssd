@@ -204,3 +204,31 @@ class TestShell(TestCase):
         captured_output = output.getvalue()
         expected = '0xABCDFFFF\n' * 100
         self.assertEqual(captured_output, expected)
+
+    @patch('builtins.input', side_effect=['write 1', 'exit'])
+    def test_determine_cmd_with_wrong_cmd(self, mock):
+        output = io.StringIO()
+        original_stdout = sys.stdout
+        sys.stdout = output
+
+        try:
+            mock = Shell()
+            mock.run()
+        finally:
+            sys.stdout = original_stdout
+
+        self.assertIn(INVALID_COMMAND, output.getvalue())
+
+    @patch('builtins.input', side_effect=['help', 'exit'])
+    def test_determine_cmd_with_help(self, mock):
+        output = io.StringIO()
+        original_stdout = sys.stdout
+        sys.stdout = output
+
+        try:
+            mock = Shell()
+            mock.run()
+        finally:
+            sys.stdout = original_stdout
+
+        self.assertIn(HELP_MESSAGE, output.getvalue())
