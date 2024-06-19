@@ -7,9 +7,7 @@ INVALID_COMMAND = "INVALID COMMAND"
 
 class VirtualSSD:
     def __init__(self):
-        for filename in ['result.txt','nand.txt']:
-            file = open(filename,'w')
-            file.write("")
+        pass
 
     def run(self):
         args = sys.argv[1:]
