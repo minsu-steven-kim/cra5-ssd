@@ -2,7 +2,8 @@ import os.path
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from command import WriteCommand, HelpCommand, ReadCommand, FullwriteCommand
+
+from command import WriteCommand, HelpCommand, ReadCommand, FullwriteCommand, FullreadCommand
 from shell import Shell
 
 import io
@@ -13,58 +14,59 @@ VALID_LBA = "3"
 TEST_SSD_FILE_PATH = "../virtual_ssd_pkg/ssd.py"
 NON_INIT_VALUE = 0xAAAABBBB
 
+
 class TestShell(TestCase):
     def setUp(self):
         self.vs = Shell()
-        self.wc = WriteCommand("../virtual_ssd_pkg/ssd.py", 10, 0xAAAABBBB)
+        self.wc = WriteCommand("../virtual_ssd_pkg/ssd.py", "10", "0xAAAABBBB")
 
     def test_write_execute_invalid_lba(self):
         with self.assertRaises(Exception) as context:
-            wc = WriteCommand("../virtual_ssd_pkg/ssd.py", "100", "0xAAAABBBB")
-            wc.execute()
+            self.wc.set_lba("100")
+            self.wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_write_invalid_type_lab(self):
         with self.assertRaises(Exception) as context:
-            wc = WriteCommand("../virtual_ssd_pkg/ssd.py", 10, "0xAAAABBBB")
-            wc.execute()
+            self.wc.set_lba(10)
+            self.wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_write_invalid_range_value(self):
         with self.assertRaises(Exception) as context:
-            wc = WriteCommand("../virtual_ssd_pkg/ssd.py", "10", "0xAAAABBB")
-            wc.execute()
+            self.wc.set_value("0xAAAABBB")
+            self.wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_write_invalid_type_value(self):
         with self.assertRaises(Exception) as context:
-            wc = WriteCommand("../virtual_ssd_pkg/ssd.py", "10", 0XFFFFFFFF)
-            wc.execute()
+            self.wc.set_value(0XFFFFFFFF)
+            self.wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_invalid_virtual_ssd_file_path(self):
         with self.assertRaises(FileExistsError) as context:
-            wc = WriteCommand("123.py", "10", "0xFFFFFFFF")
-            wc.execute()
+            self.wc.set_file_path("123.py")
+            self.wc.execute()
 
-    @patch.object(ReadCommand, 'get_result_with_ssd', return_value = NON_INIT_VALUE)
+    @patch.object(ReadCommand, 'get_result_with_ssd', return_value=NON_INIT_VALUE)
     @patch.object(ReadCommand, 'send_cmd_to_ssd')
-    def test_read_calling_send_cmd_to_ssd(self,sendMock, resMock):
+    def test_read_calling_send_cmd_to_ssd(self, sendMock, resMock):
         read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
         read.execute()
         self.assertEqual(read.send_cmd_to_ssd.call_count, 1)
 
-    @patch.object(ReadCommand, 'get_result_with_ssd', return_value = NON_INIT_VALUE)
+    @patch.object(ReadCommand, 'get_result_with_ssd', return_value=NON_INIT_VALUE)
     def test_read_calling_get_result_with_ssd(self, resMock):
         read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
         read.execute()
         self.assertEqual(read.get_result_with_ssd.call_count, 1)
 
-    @patch.object(ReadCommand, 'get_result_with_ssd', return_value =NON_INIT_VALUE)
+    @patch.object(ReadCommand, 'get_result_with_ssd', return_value=NON_INIT_VALUE)
     def test_read_check_print_result(self, resMock):
         output = io.StringIO()
         original_stdout = sys.stdout
@@ -108,8 +110,22 @@ class TestShell(TestCase):
 """
         self.assertEqual(expected_output, captured_output)
 
+    def test_check_write_cmd_line(self):
+        cmd = f"python {self.vs.get_virtual_ssd_file_path()} W {self.wc.get_lba()} {self.wc.get_value()}"
+
+        self.assertEqual(self.wc.get_write_cmd_line(), cmd)
+
+    @patch.object(WriteCommand, "run_command")
+    def test_check_call_write_cmd(self, mock):
+        mock = WriteCommand("../virtual_ssd_pkg/ssd.py", "99", "0xAAAABBBB")
+        mock.execute()
+        cmd = mock.get_write_cmd_line()
+
+        self.assertEqual(1, mock.run_command.call_count)
+        mock.run_command.assert_called_with(cmd)
+
     @patch.object(ReadCommand, 'get_result_with_ssd', return_value=NON_INIT_VALUE)
-    def test_read_check_invalid_lba(self,resMock):
+    def test_read_check_invalid_lba(self, resMock):
         lba = INVALID_LBA
         with self.assertRaises(Exception) as context:
             read = ReadCommand("../virtual_ssd_pkg/ssd.py", lba)
@@ -145,4 +161,10 @@ class TestShell(TestCase):
     def test_fullwirte_with_mocked_write_commands(self, mock_execute):
         fullwrite_command = FullwriteCommand(TEST_SSD_FILE_PATH, ["fullwrite", "0xAAAABBBB"])
         fullwrite_command.execute()
+        self.assertEqual(mock_execute.call_count, 100)
+
+    @patch.object(ReadCommand, 'execute')
+    def test_fullread_with_mocked_read_commands(self, mock_execute):
+        fullread_command = FullreadCommand(TEST_SSD_FILE_PATH)
+        fullread_command.execute()
         self.assertEqual(mock_execute.call_count, 100)
