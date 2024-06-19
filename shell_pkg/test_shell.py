@@ -12,40 +12,40 @@ import sys
 class TestShell(TestCase):
     def setUp(self):
         self.vs = Shell()
-        self.wc = WriteCommand("../virtual_ssd_pkg/ssd.py", 10, 0xAAAABBBB)
+        self.wc = WriteCommand("../virtual_ssd_pkg/ssd.py", "10", "0xAAAABBBB")
 
     def test_write_execute_invalid_lba(self):
         with self.assertRaises(Exception) as context:
-            wc = WriteCommand("../virtual_ssd_pkg/ssd.py", "100", "0xAAAABBBB")
-            wc.execute()
+            self.wc.set_lba("100")
+            self.wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_write_invalid_type_lab(self):
         with self.assertRaises(Exception) as context:
-            wc = WriteCommand("../virtual_ssd_pkg/ssd.py", 10, "0xAAAABBBB")
-            wc.execute()
+            self.wc.set_lba(10)
+            self.wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_write_invalid_range_value(self):
         with self.assertRaises(Exception) as context:
-            wc = WriteCommand("../virtual_ssd_pkg/ssd.py", "10", "0xAAAABBB")
-            wc.execute()
+            self.wc.set_value("0xAAAABBB")
+            self.wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_write_invalid_type_value(self):
         with self.assertRaises(Exception) as context:
-            wc = WriteCommand("../virtual_ssd_pkg/ssd.py", "10", 0XFFFFFFFF)
-            wc.execute()
+            self.wc.set_value(0XFFFFFFFF)
+            self.wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_invalid_virtual_ssd_file_path(self):
         with self.assertRaises(FileExistsError) as context:
-            wc = WriteCommand("123.py", "10", "0xFFFFFFFF")
-            wc.execute()
+            self.wc.set_file_path("123.py")
+            self.wc.execute()
 
     def test_read_calling_send_cmd_to_ssd(self):
         self.vs.send_cmd_to_ssd = Mock()
@@ -102,10 +102,9 @@ class TestShell(TestCase):
         self.assertEqual(expected_output, captured_output)
 
     def test_check_write_cmd_line(self):
-        ws = WriteCommand("../virtual_ssd_pkg/ssd.py", "99", "0xAAAABBBB")
-        cmd = f"python {self.vs.get_virtual_ssd_file_path()} W {ws.lba} {ws.value}"
+        cmd = f"python {self.vs.get_virtual_ssd_file_path()} W {self.wc.get_lba()} {self.wc.get_value()}"
 
-        self.assertEqual(ws.get_write_cmd_line(), cmd)
+        self.assertEqual(self.wc.get_write_cmd_line(), cmd)
 
     @patch.object(WriteCommand, "run_command")
     def test_check_call_write_cmd(self, mock):
