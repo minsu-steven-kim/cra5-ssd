@@ -1,4 +1,5 @@
 from file_io import FileIO
+from command import InvalidCommand, WriteCommand, ReadCommand
 
 import sys
 import re
@@ -8,15 +9,21 @@ class VirtualSSD:
     def __init__(self):
         self.nand_file = 'nand.txt'
         self.result_file = 'result.txt'
-        self.command = self.take_command()
 
-    def take_command(self):
-        try:
-            arguments = ['ssd'] + sys.argv[1:]
-            return self.parsing_command(' '.join(arguments))
-        except ValueError:
-            print('INVALID COMMAND')
-        return None
+    def run(self):
+        args = ['ssd'] + sys.argv[1:]
+        cmd = self.determine_cmd(args)
+        cmd.execute(args)
+
+    def determine_cmd(self, args):
+        if len(args) == 0:
+            return InvalidCommand()
+        elif args[0] == 'W':
+            return WriteCommand()
+        elif args[0] == 'R':
+            return ReadCommand()
+        else:
+            return InvalidCommand()
 
     def parsing_command(self, cmd):
         if type(cmd) != str:
