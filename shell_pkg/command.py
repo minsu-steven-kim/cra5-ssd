@@ -32,7 +32,7 @@ class Command(ABC):
 class ExitCommand(Command):
     def __init__(self, args):
         if len(args) != 1:
-            raise Exception("INVALID COMMAND")
+            raise Exception(INVALID_COMMAND)
     def execute(self):
         return 1
 
@@ -40,7 +40,7 @@ class ExitCommand(Command):
 class HelpCommand(Command):
     def __init__(self, args):
         if len(args) != 1:
-            raise Exception("INVALID COMMAND")
+            raise Exception(INVALID_COMMAND)
     def execute(self):
         print(HELP_MESSAGE)
         return 0
@@ -48,7 +48,7 @@ class HelpCommand(Command):
 
 class InvalidCommand(Command):
     def execute(self):
-        print('INVALID COMMAND')
+        print(INVALID_COMMAND)
         return 0
 
 
@@ -149,7 +149,7 @@ class FullwriteCommand(Command):
 class FullreadCommand(Command):
     def __init__(self, args):
         if len(args) != 1:
-            raise Exception("INVALID COMMAND")
+            raise Exception(INVALID_COMMAND)
 
     def execute(self):
         for lba in range(MAX_LBA + 1):
@@ -160,7 +160,7 @@ class FullreadCommand(Command):
 class TestApp1Command(Command):
     def __init__(self, args):
         if len(args) != 1:
-            raise Exception("INVALID COMMAND")
+            raise Exception(INVALID_COMMAND)
         self.testValue = '0xABCDFFFF'
         self.validationValue = '0xABCDFFFF\n' * (MAX_LBA + 1)
 
@@ -174,7 +174,7 @@ class TestApp1Command(Command):
 class TestApp2Command(Command):
     def __init__(self, args):
         if len(args) != 1:
-            raise Exception("INVALID COMMAND")
+            raise Exception(INVALID_COMMAND)
 
     def write_test1(self):
         args_list = [['write', str(i), '0xAAAABBBB'] for i in range(6)]
