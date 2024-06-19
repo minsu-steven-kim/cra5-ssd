@@ -12,7 +12,7 @@ import sys
 class TestShell(TestCase):
     def setUp(self):
         self.vs = Shell()
-        self.wc = WriteCommand("../virtual_ssd_pkg/ssd.py", "10", "0xAAAABBBB")
+        self.wc = WriteCommand("../virtual_ssd_pkg/ssd.py", ["write", "10", "0xAAAABBBB"])
 
     def test_write_execute_invalid_lba(self):
         with self.assertRaises(Exception) as context:
@@ -108,9 +108,15 @@ class TestShell(TestCase):
 
     @patch.object(WriteCommand, "run_command")
     def test_check_call_write_cmd(self, mock):
-        mock = WriteCommand("../virtual_ssd_pkg/ssd.py", "99", "0xAAAABBBB")
+        mock = WriteCommand("../virtual_ssd_pkg/ssd.py", ["write", "99", "0xAAAABBBB"])
         mock.execute()
         cmd = mock.get_write_cmd_line()
 
         self.assertEqual(1, mock.run_command.call_count)
         mock.run_command.assert_called_with(cmd)
+
+    def test_init_write_command_without_value(self):
+        with self.assertRaises(Exception) as context:
+            wc = WriteCommand("../virtual_ssd_pkg/ssd.py", ["write", "99"])
+
+        self.assertEqual("INVALID COMMAND", str(context.exception))
