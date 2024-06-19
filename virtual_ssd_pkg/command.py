@@ -1,10 +1,9 @@
 import re
 from abc import ABC, abstractmethod
-import re
-import os
+
 from file_io import FileIO
 
-from virtual_ssd_pkg.file_io import FileIO
+INVALID_COMMAND = "INVALID COMMAND"
 
 
 class Command(ABC):
@@ -34,9 +33,6 @@ class Command(ABC):
 
 
 class WriteCommand(Command):
-    def __init__(self):
-        pass
-
     def is_invalid_parameter(self, args):
         if len(args) < 3:
             return True
@@ -48,8 +44,8 @@ class WriteCommand(Command):
 
     def execute(self, args):
         if self.is_invalid_parameter(args):
-            raise Exception("INVALID COMMAND")
-        self.NAND_TXT = FileIO("nand.txt")
+            raise Exception(INVALID_COMMAND)
+        self.NAND_TXT = FileIO(self.nand_file)
         self.NAND_DATA = self.NAND_TXT.load()
         lba = int(args[1])
         data = args[2]
@@ -60,7 +56,7 @@ class WriteCommand(Command):
 class ReadCommand(Command):
     def execute(self, args):
         if self.is_invalid_lba(args[1]):
-            raise ValueError("INVALID COMMAND")
+            raise ValueError(INVALID_COMMAND)
 
         nand_file_data = ['0x00000000' for _ in range(100)]
         nand_file_io = FileIO(self.nand_file)
@@ -76,4 +72,4 @@ class ReadCommand(Command):
 class InvalidCommand(Command):
 
     def execute(self, args):
-        raise Exception("INVALID COMMAND")
+        raise Exception(INVALID_COMMAND)
