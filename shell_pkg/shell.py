@@ -80,7 +80,8 @@ class Shell:
         pass
 
     def get_result_with_ssd(self):
-        pass
+        with open('result.txt', 'r') as f:
+            return f.read()
 
 
 if __name__ == '__main__':

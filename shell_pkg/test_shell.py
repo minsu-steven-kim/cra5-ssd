@@ -1,6 +1,8 @@
 import os.path
 from unittest import TestCase
 from unittest.mock import Mock, patch
+
+from shell_pkg.command import ReadCommand
 from shell_pkg.shell import Shell
 import io
 import sys
@@ -46,26 +48,27 @@ class TestShell(TestCase):
         with self.assertRaises(FileExistsError) as context:
             self.vs.write(10, 0XFFFFFFFF)
 
-    @patch.object(Shell, 'send_cmd_to_ssd')
-    def test_read_calling_send_cmd_to_ssd(self,mock):
-        self.vs.read(3)
-        self.assertEqual(self.vs.send_cmd_to_ssd.call_count, 1)
+    @patch.object(ReadCommand, 'get_result_with_ssd', return_value = NON_INIT_VALUE)
+    @patch.object(ReadCommand, 'send_cmd_to_ssd')
+    def test_read_calling_send_cmd_to_ssd(self,sendMock, resMock):
+        read = ReadCommand(3)
+        read.execute()
+        self.assertEqual(read.send_cmd_to_ssd.call_count, 1)
 
-    @patch.object(Shell, 'get_result_with_ssd')
-    def test_read_calling_get_result_with_ssd(self):
-        self.vs.get_result_with_ssd = Mock()
-        self.vs.read(3)
-        self.assertEqual(self.vs.get_result_with_ssd.call_count, 1)
+    @patch.object(ReadCommand, 'get_result_with_ssd', return_value = NON_INIT_VALUE)
+    def test_read_calling_get_result_with_ssd(self, resMock):
+        read = ReadCommand(3)
+        read.execute()
+        self.assertEqual(read.get_result_with_ssd.call_count, 1)
 
-    @patch.object(Shell, 'get_result_with_ssd', return_value =NON_INIT_VALUE)
-    def test_read_check_print_result(self):
+    @patch.object(ReadCommand, 'get_result_with_ssd', return_value =NON_INIT_VALUE)
+    def test_read_check_print_result(self, resMock):
         output = io.StringIO()
         original_stdout = sys.stdout
         sys.stdout = output
         try:
-            self.vs.get_result_with_ssd = Mock()
-            self.vs.get_result_with_ssd.return_value = NON_INIT_VALUE
-            self.vs.read(3)
+            read = ReadCommand(3)
+            read.execute()
         finally:
             sys.stdout = original_stdout
 
@@ -95,10 +98,14 @@ class TestShell(TestCase):
         mock.run_command.assert_called_with(cmd)
         self.assertEqual(1, mock.run_command.call_count)
 
-
-    def test_read_check_invalid_lba(self):
+    @patch.object(ReadCommand, 'get_result_with_ssd', return_value=NON_INIT_VALUE)
+    def test_read_check_invalid_lba(self,resMock):
         lba = 100
         with self.assertRaises(Exception) as context:
-            self.vs.read(lba)
+            read = ReadCommand(lba)
+            read.execute()
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
+    def test_read_check_no_file(self):
+        with self.assertRaises(FileNotFoundError):
+            self.vs.read(3)
