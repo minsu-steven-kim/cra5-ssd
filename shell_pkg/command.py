@@ -108,15 +108,14 @@ class ReadCommand(Command):
 
 class FullwriteCommand(Command):
     def __init__(self, filepath, args):
+        if len(args) != 2:
+            raise Exception("INVALID COMMAND")
         self.filepath = filepath
-        self.args = args
+        self.__value = args[1]
 
     def execute(self):
-        if len(self.args) != 2:
-            raise Exception("INVALID COMMAND")
-
-        if self.is_invalid_value(self.args[1]):
+        if self.is_invalid_value(self.__value):
             raise Exception("INVALID COMMAND")
 
         for lba in range(100):
-            WriteCommand(self.filepath, str(lba), self.args[1]).execute()
+            WriteCommand(self.filepath, str(lba), self.__value).execute()
