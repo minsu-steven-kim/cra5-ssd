@@ -105,3 +105,11 @@ class ReadCommand(Command):
     def send_cmd_to_ssd(self):
         cmd = self.create_command()
         self.run_command(cmd)
+
+class FullWriteCommand(Command):
+    def __init__(self, value):
+        self.value = value
+
+    def execute(self):
+        if self.is_invalid_value(self.value):
+            raise Exception("INVALID COMMAND")
