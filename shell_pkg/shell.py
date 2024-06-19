@@ -31,9 +31,9 @@ class Shell:
         elif args[0] == 'fullwrite':
             return FullwriteCommand(args)
         elif args[0] == 'fullread':
-            return FullreadCommand()
+            return FullreadCommand(args)
         elif args[0] == 'testapp1':
-            return TestApp1Command()
+            return TestApp1Command(args)
         else:
             return InvalidCommand()
 

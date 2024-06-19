@@ -141,9 +141,9 @@ class FullwriteCommand(Command):
 
 
 class FullreadCommand(Command):
-    def __init__(self):
-        self.ssd_filepath = SSD_FILE_PATH
-        self.result_filepath = RESULT_FILE_PATH
+    def __init__(self, args):
+        if len(args) != 1:
+            raise Exception("INVALID COMMAND")
 
     def execute(self):
         for lba in range(100):
@@ -151,13 +151,14 @@ class FullreadCommand(Command):
             read_cmd.execute()
 
 class TestApp1Command(Command):
-    def __init__(self, filepath):
-        self.filepath = filepath
+    def __init__(self, args):
+        if len(args) != 1:
+            raise Exception("INVALID COMMAND")
         self.testValue = '0xABCDFFFF'
         self.validationValue = '0xABCDFFFF\n' * 100
 
     def execute(self):
-        fullWrite = FullwriteCommand(self.filepath, ['fullwrite', self.testValue])
+        fullWrite = FullwriteCommand(['fullwrite', self.testValue])
         fullWrite.execute()
-        fullRead = FullreadCommand(self.filepath)
+        fullRead = FullreadCommand(['fullread'])
         fullRead.execute()
