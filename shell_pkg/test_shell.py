@@ -100,3 +100,9 @@ class TestShell(TestCase):
 : see the command guide.
 """
         self.assertEqual(expected_output, captured_output)
+
+    def test_check_write_cmd_line(self):
+        ws = WriteCommand("../virtual_ssd_pkg/ssd.py", "99", "0xAAAABBBB")
+        cmd = f"python {self.vs.get_virtual_ssd_file_path()} W {ws.lba} {ws.value}"
+
+        self.assertEqual(ws.get_write_cmd_line(), cmd)

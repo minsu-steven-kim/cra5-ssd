@@ -84,4 +84,4 @@ class WriteCommand(Command):
         return False
 
     def get_write_cmd_line(self):
-        return f"python {self.file_path} ssd W {self.lba} {self.value}"
+        return f"python {self.file_path} W {self.lba} {self.value}"
