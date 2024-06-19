@@ -56,7 +56,7 @@ class WriteCommand(Command):
 class ReadCommand(Command):
     def execute(self, args):
         if self.is_invalid_lba(args[1]):
-            raise ValueError(INVALID_COMMAND)
+            raise Exception(INVALID_COMMAND)
 
         nand_file_data = ['0x00000000' for _ in range(100)]
         nand_file_io = FileIO(self.nand_file)

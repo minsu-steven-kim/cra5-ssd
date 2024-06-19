@@ -68,16 +68,16 @@ class TestReadCommand(TestCase):
         mock_file.assert_any_call('result.txt', 'w')
 
     def test_execute_lba_not_int_type(self):
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(Exception) as context:
             self.executor.execute([None, 'T'])
 
     def test_execute_lba_not_string_int_type(self):
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(Exception) as context:
             self.executor.execute([None, 1])
 
     def test_execute_lba_out_of_range(self):
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(Exception) as context:
             self.executor.execute([None, '-1'])
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(Exception) as context:
             self.executor.execute([None, '100'])
