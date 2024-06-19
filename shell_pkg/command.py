@@ -166,50 +166,23 @@ class TestApp2Command(Command):
         self.filepath = filepath
 
     def write_test1(self):
-        write_command0 = WriteCommand(self.filepath, [None, '0', '0xAAAABBBB'])
-        write_command1 = WriteCommand(self.filepath, [None, '1', '0xAAAABBBB'])
-        write_command2 = WriteCommand(self.filepath, [None, '2', '0xAAAABBBB'])
-        write_command3 = WriteCommand(self.filepath, [None, '3', '0xAAAABBBB'])
-        write_command4 = WriteCommand(self.filepath, [None, '4', '0xAAAABBBB'])
-        write_command5 = WriteCommand(self.filepath, [None, '5', '0xAAAABBBB'])
-
-        for i in range(30):
-            write_command0.execute()
-            write_command1.execute()
-            write_command2.execute()
-            write_command3.execute()
-            write_command4.execute()
-            write_command5.execute()
+        args_list = [[None, str(i), '0xAAAABBBB'] for i in range(6)]
+        for args in args_list:
+            write_command = WriteCommand(self.filepath, args)
+            for i in range(30):
+                write_command.execute()
 
     def write_test2(self):
-        write_command0 = WriteCommand(self.filepath, [None, '0', '0x12345678'])
-        write_command1 = WriteCommand(self.filepath, [None, '1', '0x12345678'])
-        write_command2 = WriteCommand(self.filepath, [None, '2', '0x12345678'])
-        write_command3 = WriteCommand(self.filepath, [None, '3', '0x12345678'])
-        write_command4 = WriteCommand(self.filepath, [None, '4', '0x12345678'])
-        write_command5 = WriteCommand(self.filepath, [None, '5', '0x12345678'])
-
-        write_command0.execute()
-        write_command1.execute()
-        write_command2.execute()
-        write_command3.execute()
-        write_command4.execute()
-        write_command5.execute()
+        args_list = [[None, str(i), '0x12345678'] for i in range(6)]
+        for args in args_list:
+            write_command = WriteCommand(self.filepath, args)
+            write_command.execute()
 
     def read_test(self):
-        read_command0 = ReadCommand(self.filepath, ['None', '0'])
-        read_command1 = ReadCommand(self.filepath, ['None', '1'])
-        read_command2 = ReadCommand(self.filepath, ['None', '2'])
-        read_command3 = ReadCommand(self.filepath, ['None', '3'])
-        read_command4 = ReadCommand(self.filepath, ['None', '4'])
-        read_command5 = ReadCommand(self.filepath, ['None', '5'])
-
-        read_command0.execute()
-        read_command1.execute()
-        read_command2.execute()
-        read_command3.execute()
-        read_command4.execute()
-        read_command5.execute()
+        args_list = [[None, str(i)] for i in range(6)]
+        for args in args_list:
+            read_command = ReadCommand(self.filepath, args)
+            read_command.execute()
 
     def execute(self):
         self.write_test1()
