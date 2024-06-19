@@ -9,10 +9,13 @@ class Shell:
     def run(self):
         is_exit = 0
         while not is_exit:
-            print('> ', end='')
-            args = input().split()
-            cmd = self.determine_cmd(args)
-            is_exit = cmd.execute()
+            try:
+                print('> ', end='')
+                args = input().split()
+                cmd = self.determine_cmd(args)
+                is_exit = cmd.execute()
+            except Exception as e:
+                print(e)
 
     def determine_cmd(self, args):
         if len(args) == 0:
