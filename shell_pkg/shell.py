@@ -22,7 +22,7 @@ class Shell:
         elif args[0] == 'help':
             return HelpCommand()
         elif args[0] == 'write':
-            return WriteCommand(self.__virtual_ssd_file_path, args[1], args[2])
+            return WriteCommand(self.__virtual_ssd_file_path, args)
         elif args[0] == 'read':
             return ReadCommand(self.__virtual_ssd_file_path, args[1])
         elif args[0] == 'fullread':

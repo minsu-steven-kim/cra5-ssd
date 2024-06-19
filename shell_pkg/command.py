@@ -59,9 +59,11 @@ class InvalidCommand(Command):
 
 
 class WriteCommand(Command):
-    def __init__(self, file_path, lba: int, value: str):
-        self.__lba = lba
-        self.__value = value
+    def __init__(self, file_path, args):
+        if len(args) != 3:
+            raise Exception("INVALID COMMAND")
+        self.__lba = args[1]
+        self.__value = args[2]
         self.__file_path = file_path
 
     def get_lba(self):
