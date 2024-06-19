@@ -5,6 +5,8 @@ class FileIO:
     def load(self):
         try:
             with open(self.filename, 'r') as f:
+                if self.filename == 'result.txt':
+                    return f.read()
                 file_read = f.read()
                 if len(file_read) < 1100:
                     f.close()
