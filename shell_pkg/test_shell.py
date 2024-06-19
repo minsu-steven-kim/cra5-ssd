@@ -1,92 +1,128 @@
 import os.path
 from unittest import TestCase
 from unittest.mock import Mock, patch
-from shell_pkg.shell import Shell
+
+from command import WriteCommand, HelpCommand, ReadCommand
+from shell import Shell
+
 import io
 import sys
 
+INVALID_LBA = "100"
+VALID_LBA = "3"
+TEST_SSD_FILE_PATH = "../virtual_ssd_pkg/ssd.py"
+NON_INIT_VALUE = 0xAAAABBBB
 
 class TestShell(TestCase):
     def setUp(self):
         self.vs = Shell()
-        self.test_write_lba = 10
-        self.test_write_value = 0xAAAABBBB
+        self.wc = WriteCommand("../virtual_ssd_pkg/ssd.py", 10, 0xAAAABBBB)
 
-    def test_write_temporary(self):
-        self.vs.write(1, 0x12341234)
-
-    def test_write_invalid_lba(self):
+    def test_write_execute_invalid_lba(self):
         with self.assertRaises(Exception) as context:
-            self.vs.write(100, 0x12341234)
+            wc = WriteCommand("../virtual_ssd_pkg/ssd.py", "100", "0xAAAABBBB")
+            wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_write_invalid_type_lab(self):
         with self.assertRaises(Exception) as context:
-            self.vs.write("10", 0x12341234)
+            wc = WriteCommand("../virtual_ssd_pkg/ssd.py", 10, "0xAAAABBBB")
+            wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_write_invalid_range_value(self):
         with self.assertRaises(Exception) as context:
-            self.vs.write(10, 0XFFFFFFFFF)
+            wc = WriteCommand("../virtual_ssd_pkg/ssd.py", "10", "0xAAAABBB")
+            wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_write_invalid_type_value(self):
         with self.assertRaises(Exception) as context:
-            self.vs.write(10, "0XFFFFFFFF")
+            wc = WriteCommand("../virtual_ssd_pkg/ssd.py", "10", 0XFFFFFFFF)
+            wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
 
     def test_invalid_virtual_ssd_file_path(self):
-        self.vs.set_virtual_ssd_file_path("123.py")
         with self.assertRaises(FileExistsError) as context:
-            self.vs.write(10, 0XFFFFFFFF)
+            wc = WriteCommand("123.py", "10", "0xFFFFFFFF")
+            wc.execute()
 
-    def test_read_calling_send_cmd_to_ssd(self):
-        self.vs.send_cmd_to_ssd = Mock()
-        self.vs.read(3)
-        self.assertEqual(self.vs.send_cmd_to_ssd.call_count, 1)
+    @patch.object(ReadCommand, 'get_result_with_ssd', return_value = NON_INIT_VALUE)
+    @patch.object(ReadCommand, 'send_cmd_to_ssd')
+    def test_read_calling_send_cmd_to_ssd(self,sendMock, resMock):
+        read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
+        read.execute()
+        self.assertEqual(read.send_cmd_to_ssd.call_count, 1)
 
-    def test_read_calling_get_result_with_ssd(self):
-        self.vs.get_result_with_ssd = Mock()
-        self.vs.read(3)
-        self.assertEqual(self.vs.get_result_with_ssd.call_count, 1)
+    @patch.object(ReadCommand, 'get_result_with_ssd', return_value = NON_INIT_VALUE)
+    def test_read_calling_get_result_with_ssd(self, resMock):
+        read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
+        read.execute()
+        self.assertEqual(read.get_result_with_ssd.call_count, 1)
 
-    def test_read_check_print_result(self):
+    @patch.object(ReadCommand, 'get_result_with_ssd', return_value =NON_INIT_VALUE)
+    def test_read_check_print_result(self, resMock):
         output = io.StringIO()
         original_stdout = sys.stdout
         sys.stdout = output
         try:
-            self.vs.get_result_with_ssd = Mock()
-            self.vs.get_result_with_ssd.return_value = 0xAAAABBBB
-            self.vs.read(3)
+            read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
+            read.execute()
         finally:
             sys.stdout = original_stdout
 
         captured_output = int(output.getvalue().strip())
-        self.assertEqual(captured_output, 0xAAAABBBB)
+        self.assertEqual(captured_output, NON_INIT_VALUE)
 
-    @patch.object(Shell, "call_virtual_ssd_write_cmd")
-    def test_check_call_write_cmd(self, mock):
-        mock = Shell()
-        mock.write(self.test_write_lba, self.test_write_value)
+    def test_print_help_command(self):
+        output = io.StringIO()
+        original_stdout = sys.stdout
+        sys.stdout = output
 
-        self.assertEqual(1, mock.call_virtual_ssd_write_cmd.call_count, 1)
-        mock.call_virtual_ssd_write_cmd.assert_called_with(self.test_write_lba, self.test_write_value)
+        try:
+            HelpCommand().execute()
+        finally:
+            sys.stdout = original_stdout
 
-    def test_check_write_cmd_line(self):
-        result = self.vs.get_write_cmd_line(self.test_write_lba, self.test_write_value)
-        answer = f"python {self.vs.get_virtual_ssd_file_path()} ssd W {self.test_write_lba} {self.test_write_value}"
+        captured_output = output.getvalue()
+        expected_output = """============================== Command Guide ==============================
+1) write [LBA] [value]
+: write [value] to [LBA].
+: [LBA] should be an integer between 0 and 99.
+: [value] should be in hexadecimal format between 0x00000000 and 0xFFFFFFFF.
+2) read [LBA]
+: read the value written to [LBA].
+3) fullwrite [value]
+: write [value] to all LBA(0~99).
+: [value] should be in hexadecimal format between 0x00000000 and 0xFFFFFFFF.
+4) fullread
+: read the all LBA(0~99) values.
+5) exit
+: quit the shell.
+6) help
+: see the command guide.
+"""
+        self.assertEqual(expected_output, captured_output)
 
-        self.assertEqual(result, answer)
+    @patch.object(ReadCommand, 'get_result_with_ssd', return_value=NON_INIT_VALUE)
+    def test_read_check_invalid_lba(self,resMock):
+        lba = INVALID_LBA
+        with self.assertRaises(Exception) as context:
+            read = ReadCommand("../virtual_ssd_pkg/ssd.py", lba)
+            read.execute()
+        self.assertEqual("INVALID COMMAND", str(context.exception))
 
-    @patch.object(Shell, "run_command")
-    def test_check_call_write_cmd(self, mock):
-        mock = Shell()
-        mock.write(self.test_write_lba, self.test_write_value)
-        cmd = mock.get_write_cmd_line(self.test_write_lba, self.test_write_value)
+    def test_read_check_no_file(self):
+        with self.assertRaises(FileNotFoundError):
+            read = ReadCommand("../virtual_ssd_pkg/ssd.py", VALID_LBA)
+            read.execute()
 
-        mock.run_command.assert_called_with(cmd)
-        self.assertEqual(1, mock.run_command.call_count)
+    def test_read_create_command(self):
+        read = ReadCommand(TEST_SSD_FILE_PATH, VALID_LBA)
+        actual = read.create_command()
+        expected = f"python ../virtual_ssd_pkg/ssd.py ssd R 3"
+        self.assertEqual(actual, expected)

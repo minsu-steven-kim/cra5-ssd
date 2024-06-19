@@ -25,3 +25,4 @@ class VirtualSSD:
 
 if __name__ == '__main__':
     ssd = VirtualSSD()
+    ssd.run()

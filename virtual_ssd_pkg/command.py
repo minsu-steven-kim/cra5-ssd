@@ -1,10 +1,17 @@
 import re
 from abc import ABC, abstractmethod
+import re
+import os
+from file_io import FileIO
 
 from virtual_ssd_pkg.file_io import FileIO
 
 
 class Command(ABC):
+    def __init__(self):
+        self.nand_file = 'nand.txt'
+        self.result_file = 'result.txt'
+
     @abstractmethod
     def execute(self, args):
         pass
@@ -52,7 +59,18 @@ class WriteCommand(Command):
 
 class ReadCommand(Command):
     def execute(self, args):
-        pass
+        if self.is_invalid_lba(args[1]):
+            raise ValueError("INVALID COMMAND")
+
+        nand_file_data = ['0x00000000' for _ in range(100)]
+        nand_file_io = FileIO(self.nand_file)
+        nand_file_data_raw = nand_file_io.load().strip().split('\n')
+
+        for i, line in enumerate(nand_file_data_raw):
+            nand_file_data[i] = line
+
+        result_file_io = FileIO(self.result_file)
+        result_file_io.save(nand_file_data[int(args[1])])
 
 
 class InvalidCommand(Command):
