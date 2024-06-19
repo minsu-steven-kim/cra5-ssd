@@ -32,9 +32,9 @@ class Shell:
         elif args[0] == 'fullwrite':
             return FullwriteCommand(self.__virtual_ssd_file_path, args)
         elif args[0] == 'fullread':
-            return FullreadCommand(self.__virtual_ssd_file_path)
+            return FullreadCommand(self.__virtual_ssd_file_path, args)
         elif args[0] == 'testapp1':
-            return TestApp1Command(self.__virtual_ssd_file_path)
+            return TestApp1Command(self.__virtual_ssd_file_path, args)
         else:
             return InvalidCommand()
 
