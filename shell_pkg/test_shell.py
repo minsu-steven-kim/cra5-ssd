@@ -2,8 +2,7 @@ import os.path
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-
-from command import WriteCommand, HelpCommand, ReadCommand, FullwriteCommand, FullreadCommand
+from command import WriteCommand, HelpCommand, ReadCommand, FullwriteCommand, FullreadCommand, TestApp2Command
 from shell import Shell
 
 import io
@@ -149,7 +148,7 @@ class TestShell(TestCase):
 
     def test_fullwrite_invalid_type_value(self):
         with self.assertRaises(Exception) as context:
-            wc = FullwriteCommand(TEST_SSD_FILE_PATH, ["fullwrite",0XFFFFFFFF])
+            wc = FullwriteCommand(TEST_SSD_FILE_PATH, ["fullwrite", 0XFFFFFFFF])
             wc.execute()
 
         self.assertEqual("INVALID COMMAND", str(context.exception))
@@ -164,4 +163,31 @@ class TestShell(TestCase):
     def test_fullread_with_mocked_read_commands(self, mock_execute):
         fullread_command = FullreadCommand(TEST_SSD_FILE_PATH)
         fullread_command.execute()
-        self.assertEqual(mock_execute.call_count, 100)
+        self.assertEqual(mock_execute.call_count, 36)
+
+    @patch.object(WriteCommand, 'execute')
+    def test_app2_calling_write_command(self, mock_execute):
+        testapp2 = TestApp2Command(TEST_SSD_FILE_PATH)
+        testapp2.execute()
+        self.assertEqual(mock_execute.call_count, 186)
+
+    @patch.object(ReadCommand, 'execute')
+    def test_app2_calling_read_command(self, mock_execute):
+        testapp2 = TestApp2Command(TEST_SSD_FILE_PATH)
+        testapp2.execute()
+        self.assertEqual(mock_execute.call_count, 6)
+
+    def test_app2_compare_value(self):
+        output = io.StringIO()
+        original_stdout = sys.stdout
+        sys.stdout = output
+
+        try:
+            testapp1 = TestApp2Command(TEST_SSD_FILE_PATH)
+            testapp1.execute()
+        finally:
+            sys.stdout = original_stdout
+
+        captured_output = output.getvalue()
+        expected = '0x12345678\n' * 6
+        self.assertEqual(captured_output, expected)
