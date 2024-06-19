@@ -76,8 +76,8 @@ class VirtualSSD:
         for i, line in enumerate(nand_file_data_raw):
             nand_file_data[i] = line
 
-        with open(self.result_file, 'w') as f:
-            f.write(nand_file_data[int(lba)])
+        result_file_io = FileIO(self.result_file)
+        result_file_io.save(nand_file_data[int(lba)])
 
 
 if __name__ == '__main__':
