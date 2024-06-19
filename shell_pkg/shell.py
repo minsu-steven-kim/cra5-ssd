@@ -1,5 +1,5 @@
 import os
-from command import InvalidCommand, ExitCommand
+from command import InvalidCommand, ExitCommand, HelpCommand
 
 
 class Shell:
@@ -19,6 +19,8 @@ class Shell:
             return InvalidCommand()
         elif args[0] == 'exit':
             return ExitCommand()
+        elif args[0] == 'help':
+            return HelpCommand()
         else:
             return InvalidCommand()
 

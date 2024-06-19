@@ -1,17 +1,29 @@
+from file_io import FileIO
+from command import InvalidCommand, WriteCommand, ReadCommand
+
 import sys
+import re
 
 
 class VirtualSSD:
     def __init__(self):
-        self.command = self.take_command()
+        self.nand_file = 'nand.txt'
+        self.result_file = 'result.txt'
 
-    def take_command(self):
-        try:
-            arguments = ['ssd'] + sys.argv[1:]
-            return self.parsing_command(' '.join(arguments))
-        except ValueError:
-            print('INVALID COMMAND')
-        return None
+    def run(self):
+        args = sys.argv[1:]
+        cmd = self.determine_cmd(args)
+        cmd.execute(args)
+
+    def determine_cmd(self, args):
+        if len(args) == 0:
+            return InvalidCommand()
+        elif args[0] == 'W':
+            return WriteCommand()
+        elif args[0] == 'R':
+            return ReadCommand()
+        else:
+            return InvalidCommand()
 
     def parsing_command(self, cmd):
         if type(cmd) != str:
@@ -40,9 +52,32 @@ class VirtualSSD:
         return False
 
     def valid_value(self, value):
-        if value.startswith('0x') and len(value) == 10:
-            return True
-        return False
+        pattern = r'0x[0-9A-F]{8}$'
+        return bool(re.match(pattern, value))
+
+    def ssd_write(self, lba, data):
+        if (not self.valid_LBA(lba)) or (not self.valid_value(data)):
+            return
+
+        self.NAND_TXT = FileIO("nand.txt")
+        self.NAND_DATA = self.NAND_TXT.load()
+        lba = int(lba)
+        self.NAND_DATA = self.NAND_DATA[:lba * 11] + data + self.NAND_DATA[(lba + 1) * 11 - 1:]
+        self.NAND_TXT.save(self.NAND_DATA)
+
+    def read(self, lba):
+        if not self.valid_LBA(lba):
+            return
+
+        nand_file_data = ['0x00000000' for _ in range(100)]
+        nand_file_io = FileIO(self.nand_file)
+        nand_file_data_raw = nand_file_io.load().strip().split('\n')
+
+        for i, line in enumerate(nand_file_data_raw):
+            nand_file_data[i] = line
+
+        with open(self.result_file, 'w') as f:
+            f.write(nand_file_data[int(lba)])
 
 
 if __name__ == '__main__':
