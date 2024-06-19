@@ -21,9 +21,9 @@ class Shell:
         if len(args) == 0:
             return InvalidCommand()
         elif args[0] == 'exit':
-            return ExitCommand()
+            return ExitCommand(args)
         elif args[0] == 'help':
-            return HelpCommand()
+            return HelpCommand(args)
         elif args[0] == 'write':
             return WriteCommand(args)
         elif args[0] == 'read':

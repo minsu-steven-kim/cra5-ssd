@@ -30,11 +30,17 @@ class Command(ABC):
 
 
 class ExitCommand(Command):
+    def __init__(self, args):
+        if len(args) != 1:
+            raise Exception("INVALID COMMAND")
     def execute(self):
         return 1
 
 
 class HelpCommand(Command):
+    def __init__(self, args):
+        if len(args) != 1:
+            raise Exception("INVALID COMMAND")
     def execute(self):
         print(HELP_MESSAGE)
         return 0
