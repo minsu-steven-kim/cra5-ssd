@@ -285,8 +285,12 @@ class ScenarioRunner(Command):
                                    stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, \
                                    text=True)
         subprocess_cmd = script + '\nexit\n'
+        self.print_execute_script_log(script)
         stdout, stderr = process.communicate(input=subprocess_cmd)
         return stdout
+
+    def print_execute_script_log(self, script):
+        print(f'{script} --- Run ...', end='')
 
     def executed_successfully(self, script, output):
         if f'{script} : Success' in output:
@@ -295,7 +299,7 @@ class ScenarioRunner(Command):
             return False
 
     def print_success_log(self, script):
-        print(f'{script} : Success')
+        print('Pass')
 
     def print_fail_log(self, script):
-        print(f'{script} : Fail')
+        print('FAIL!')
