@@ -5,3 +5,5 @@ NAND_FILE_PATH = f'{ROOT_PATH}/nand.txt'
 RESULT_FILE_PATH = f'{ROOT_PATH}/result.txt'
 MIN_LBA = 0
 MAX_LBA = 99
+MIN_SIZE = 1
+MAX_SIZE = 10

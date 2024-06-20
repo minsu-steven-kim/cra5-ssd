@@ -1,7 +1,7 @@
 import re
 from abc import ABC, abstractmethod
 
-from constants import INVALID_COMMAND, NAND_FILE_PATH, RESULT_FILE_PATH, MIN_LBA, MAX_LBA
+from constants import INVALID_COMMAND, NAND_FILE_PATH, RESULT_FILE_PATH, MIN_LBA, MAX_LBA, MIN_SIZE, MAX_SIZE
 from file_io import FileIO
 
 
@@ -12,6 +12,10 @@ class Command(ABC):
 
     @abstractmethod
     def execute(self, args):
+        pass
+
+    @abstractmethod
+    def is_invalid_parameter(self, args):
         pass
 
     def is_invalid_lba(self, lba: str):
@@ -37,11 +41,13 @@ class Command(ABC):
             return True
         if not size.isdigit():
             return True
-        if int(size) < 1 or int(size) > 10:
+        if int(size) < MIN_SIZE or int(size) > MAX_SIZE:
             return True
         return False
 
-    def is_invalid_parameter_in_write(self, args):
+
+class WriteCommand(Command):
+    def is_invalid_parameter(self, args):
         if len(args) != 3:
             return True
         if self.is_invalid_lba(args[1]):
@@ -49,27 +55,8 @@ class Command(ABC):
         if self.is_invalid_value(args[2]):
             return True
         return False
-
-    def is_invalid_parameter_in_read(self, args):
-        if len(args) != 2:
-            return True
-        if self.is_invalid_lba(args[1]):
-            return True
-        return False
-
-    def is_invalid_parameter_in_erase(self, args):
-        if len(args) != 3:
-            return True
-        if self.is_invalid_lba(args[1]):
-            return True
-        if self.is_invalid_size(args[2]):
-            return True
-        return False
-
-
-class WriteCommand(Command):
     def execute(self, args):
-        if self.is_invalid_parameter_in_write(args):
+        if self.is_invalid_parameter(args):
             raise Exception(INVALID_COMMAND)
         self.NAND_TXT = FileIO(self.nand_file)
         self.NAND_DATA = self.NAND_TXT.load()
@@ -80,8 +67,16 @@ class WriteCommand(Command):
 
 
 class ReadCommand(Command):
+
+    def is_invalid_parameter(self, args):
+        if len(args) != 2:
+            return True
+        if self.is_invalid_lba(args[1]):
+            return True
+        return False
+
     def execute(self, args):
-        if self.is_invalid_parameter_in_read(args):
+        if self.is_invalid_parameter(args):
             raise Exception(INVALID_COMMAND)
         nand_file_data = ['0x00000000' for _ in range(MAX_LBA + 1)]
         nand_file_io = FileIO(self.nand_file)
@@ -95,6 +90,14 @@ class ReadCommand(Command):
 
 
 class EraseCommand(Command):
+    def is_invalid_parameter(self, args):
+        if len(args) != 3:
+            return True
+        if self.is_invalid_lba(args[1]):
+            return True
+        if self.is_invalid_size(args[2]):
+            return True
+        return False
     def set_range(self, lba, size):
         self.start_location = int(lba)
         self.end_location = self.start_location + int(size)
@@ -102,7 +105,7 @@ class EraseCommand(Command):
             self.end_location = MAX_LBA + 1
 
     def execute(self, args):
-        if self.is_invalid_parameter_in_erase(args):
+        if self.is_invalid_parameter(args):
             raise Exception(INVALID_COMMAND)
         self.set_range(args[1], args[2])
 
