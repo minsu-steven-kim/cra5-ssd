@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 import re
 import os
+import io
+import sys
 
 from constants import SSD_FILE_PATH, RESULT_FILE_PATH, INVALID_COMMAND, HELP_MESSAGE, \
     MIN_LBA, MAX_LBA
@@ -165,37 +167,83 @@ class TestApp1Command(Command):
         self.validationValue = '0xABCDFFFF\n' * (MAX_LBA + 1)
 
     def execute(self):
-        fullWrite = FullwriteCommand(['fullwrite', self.testValue])
-        fullWrite.execute()
+        self.fullwrite()
+        result = self.fullread()
+        self.evaluate_result(result)
+
+    def fullread(self):
+        buffer = io.StringIO()
+        original_stdout = sys.stdout
+        sys.stdout = buffer
+
         fullRead = FullreadCommand(['fullread'])
         fullRead.execute()
 
+        sys.stdout = original_stdout
+        result = buffer.getvalue()
+
+        print(result)
+        buffer.close()
+        return result
+
+    def fullwrite(self):
+        fullWrite = FullwriteCommand(['fullwrite', self.testValue])
+        fullWrite.execute()
+
+    def evaluate_result(self, result):
+        if self.validationValue == result:
+            print("TestApp1 : Success")
+        else:
+            print("TestApp1 : Fail")
 
 class TestApp2Command(Command):
     def __init__(self, args):
         if len(args) != 1:
             raise Exception(INVALID_COMMAND)
+        self.testValue1 = '0xAAAABBBB'
+        self.testValue2 = '0x12345678'
+        self.testLBAmax = 5
+        self.test2Count = 30
+        self.validationValue = '0x12345678\n' * (self.testLBAmax + 1)
+
+    def execute(self):
+        self.write_test1()
+        self.write_test2()
+        result = self.read_test()
+        self.evaluate_result(result)
 
     def write_test1(self):
-        args_list = [['write', str(i), '0xAAAABBBB'] for i in range(6)]
+        args_list = [['write', str(i), self.testValue1] for i in range(self.testLBAmax + 1)]
         for args in args_list:
             write_command = WriteCommand(args)
-            for i in range(30):
+            for i in range(self.test2Count):
                 write_command.execute()
 
     def write_test2(self):
-        args_list = [['write', str(i), '0x12345678'] for i in range(6)]
+        args_list = [['write', str(i), self.testValue2] for i in range(self.testLBAmax + 1)]
         for args in args_list:
             write_command = WriteCommand(args)
             write_command.execute()
 
     def read_test(self):
-        args_list = [['read', str(i)] for i in range(6)]
+        buffer = io.StringIO()
+        original_stdout = sys.stdout
+        sys.stdout = buffer
+
+        args_list = [['read', str(i)] for i in range(self.testLBAmax + 1)]
         for args in args_list:
             read_command = ReadCommand(args)
             read_command.execute()
 
-    def execute(self):
-        self.write_test1()
-        self.write_test2()
-        self.read_test()
+        sys.stdout = original_stdout
+        result = buffer.getvalue()
+
+        print(result)
+        buffer.close()
+        return result
+
+    def evaluate_result(self, result):
+        if self.validationValue == result:
+            print("TestApp2 : Success")
+        else:
+            print("TestApp2 : Fail")
