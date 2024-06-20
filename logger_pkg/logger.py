@@ -11,7 +11,7 @@ class Logger:
         self.displayLog(fomattedLog)
 
         filePath = './latest.log'
-        newPath = f'until_{now.strftime("%y%m%d_%Hh_%Mm_%Ss")}.log'
+        newPath = f'until_{now.strftime("%y%m%d_%Hh_%Mm_%Ss")}.zip'
         if os.path.exists(filePath):
             fileSize = os.path.getsize(filePath)
             if fileSize >= 10240:
