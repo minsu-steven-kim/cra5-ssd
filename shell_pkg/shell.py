@@ -1,6 +1,9 @@
 import os
+import sys
 import importlib.util
-from constants import COMMAND_DIR_PATH
+from constants import COMMAND_DIR_PATH, ROOT_PATH
+sys.path.append(ROOT_PATH)
+from logger_pkg.logger import Logger
 from commands.invalid_command import InvalidCommand
 
 
@@ -14,7 +17,7 @@ class Shell:
                 cmd = self.determine_cmd(args)
                 is_exit = cmd.execute()
             except Exception as e:
-                print(e)
+                Logger().print(e)
 
     def get_class_name(self, name: str):
         components = name.split('_')
