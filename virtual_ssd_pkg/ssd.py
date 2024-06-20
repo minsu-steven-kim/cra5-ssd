@@ -21,5 +21,5 @@ if __name__ == '__main__':
     ssd = VirtualSSD()
     try:
         ssd.run()
-    except Exception as e:
-        print(e)
+    except Exception:
+        print(INVALID_COMMAND)
