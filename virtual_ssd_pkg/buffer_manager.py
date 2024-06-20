@@ -15,15 +15,17 @@ class BufferManager:
         cmd_list = []
         if os.path.exists(BUFFER_FILE_PATH):
             with open(BUFFER_FILE_PATH, 'r') as f:
-                cmd_list = f.readlines()
+                cmd_list = [line.strip() for line in f.readlines()]
 
                 if len(cmd_list) >= MAX_CMD_BUFFER:
                     self.run_flush_command()
+                    cmd_list = []
 
         optimized_cmd_list = self.optimize_command_buffer(cmd_list, args)
         buffer_content = '\n'.join(optimized_cmd_list)
 
         with open(BUFFER_FILE_PATH, 'w') as f:
+            f.truncate(0)
             f.write(buffer_content)
 
     def optimize_command_buffer(self, cmd_list, current_args):
