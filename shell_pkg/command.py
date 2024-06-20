@@ -167,9 +167,11 @@ class TestApp1Command(Command):
         self.validationValue = '0xABCDFFFF\n' * (MAX_LBA + 1)
 
     def execute(self):
-        fullWrite = FullwriteCommand(['fullwrite', self.testValue])
-        fullWrite.execute()
+        self.fullwrite()
+        result = self.fullread()
+        self.evaluate_result(result)
 
+    def fullread(self):
         buffer = io.StringIO()
         original_stdout = sys.stdout
         sys.stdout = buffer
@@ -179,9 +181,16 @@ class TestApp1Command(Command):
 
         sys.stdout = original_stdout
         result = buffer.getvalue()
+
         print(result)
         buffer.close()
+        return result
 
+    def fullwrite(self):
+        fullWrite = FullwriteCommand(['fullwrite', self.testValue])
+        fullWrite.execute()
+
+    def evaluate_result(self, result):
         if self.validationValue == result:
             print("TestApp1 : Success")
         else:
