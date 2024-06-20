@@ -262,16 +262,40 @@ class ScenarioRunner(Command):
         if not os.path.exists(self.__shell_file_path):
             raise FileExistsError("SCENARIO_FILE_PATH_ERROR")
 
+        scenario = self.get_scenario()
+        self.execute_cmd_in_scenario(scenario)
+
+    def execute_cmd_in_scenario(self, scenario):
+        for cmd in scenario:
+            cmd = cmd.strip()
+            stdout = self.call_shell_subprocess(cmd)
+            if self.executed_successfully(cmd, stdout):
+                self.print_success_log(cmd)
+            else:
+                self.print_fail_log(cmd)
+                break
+
+    def get_scenario(self):
         with open(self.__file_path, 'r') as f:
             scenario = f.readlines()
+        return scenario
 
-        for cmd in scenario:
-            process = subprocess.Popen(['python', self.__shell_file_path],\
-                                       stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,\
-                                       text=True)
-            subprocess_cmd = cmd.strip() +'\nexit\n'
-            stdout, stderr = process.communicate(input=subprocess_cmd)
-            if f'{cmd.strip()} : Success' in stdout:
-                print(f'{cmd.strip()} : Success')
-            else:
-                print(f'{cmd.strip()} : Fail')
+    def call_shell_subprocess(self, cmd):
+        process = subprocess.Popen(['python', self.__shell_file_path], \
+                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, \
+                                   text=True)
+        subprocess_cmd = cmd + '\nexit\n'
+        stdout, stderr = process.communicate(input=subprocess_cmd)
+        return stdout
+
+    def executed_successfully(self, cmd, output):
+        if f'{cmd} : Success' in output:
+            return True
+        else:
+            return False
+
+    def print_success_log(self, cmd):
+        print(f'{cmd} : Success')
+
+    def print_fail_log(self, cmd):
+        print(f'{cmd} : Fail')
