@@ -4,11 +4,17 @@ import os
 import io
 import sys
 
+
+current_dir = os.path.dirname(__file__)
+ROOT_dir = os.path.abspath(os.path.join(current_dir, '..'))
+sys.path.append(ROOT_dir)
+
+
+from logger_pkg.logger import Logger
 from constants import SSD_FILE_PATH, RESULT_FILE_PATH, INVALID_COMMAND, HELP_MESSAGE, \
     MIN_LBA, MAX_LBA
 
-
-class Command(ABC):
+class Command(ABC, Logger):
     @abstractmethod
     def execute(self):
         pass
@@ -44,13 +50,13 @@ class HelpCommand(Command):
         if len(args) != 1:
             raise Exception(INVALID_COMMAND)
     def execute(self):
-        print(HELP_MESSAGE)
+        self.print(HELP_MESSAGE)
         return 0
 
 
 class InvalidCommand(Command):
     def execute(self):
-        print(INVALID_COMMAND)
+        self.print(INVALID_COMMAND)
         return 0
 
 
@@ -119,7 +125,7 @@ class ReadCommand(Command):
         if not os.path.exists(self.ssd_filepath):
             raise FileExistsError("VIRTUAL_SSD_PATH_ERROR")
         self.send_cmd_to_ssd()
-        print(self.get_result_with_ssd())
+        self.print(self.get_result_with_ssd())
 
     def get_result_with_ssd(self):
         with open(self.result_filepath, 'r') as f:
