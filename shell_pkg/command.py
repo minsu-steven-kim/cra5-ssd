@@ -200,22 +200,27 @@ class TestApp2Command(Command):
     def __init__(self, args):
         if len(args) != 1:
             raise Exception(INVALID_COMMAND)
+        self.testValue1 = '0xAAAABBBB'
+        self.testValue2 = '0x12345678'
+        self.testLBAmax = 5
+        self.test2Count = 30
+        self.validationValue = '0x12345678\n' * (self.testLBAmax + 1)
 
     def write_test1(self):
-        args_list = [['write', str(i), '0xAAAABBBB'] for i in range(6)]
+        args_list = [['write', str(i), self.testValue1] for i in range(self.testLBAmax + 1)]
         for args in args_list:
             write_command = WriteCommand(args)
-            for i in range(30):
+            for i in range(self.test2Count):
                 write_command.execute()
 
     def write_test2(self):
-        args_list = [['write', str(i), '0x12345678'] for i in range(6)]
+        args_list = [['write', str(i), self.testValue2] for i in range(self.testLBAmax + 1)]
         for args in args_list:
             write_command = WriteCommand(args)
             write_command.execute()
 
     def read_test(self):
-        args_list = [['read', str(i)] for i in range(6)]
+        args_list = [['read', str(i)] for i in range(self.testLBAmax + 1)]
         for args in args_list:
             read_command = ReadCommand(args)
             read_command.execute()
