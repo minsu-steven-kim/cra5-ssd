@@ -3,9 +3,10 @@ import re
 import os
 import io
 import sys
+import subprocess
 
 from constants import SSD_FILE_PATH, RESULT_FILE_PATH, INVALID_COMMAND, HELP_MESSAGE, \
-    MIN_LBA, MAX_LBA
+    MIN_LBA, MAX_LBA, SHELL_FILE_PATH
 
 
 class Command(ABC):
@@ -192,9 +193,9 @@ class TestApp1Command(Command):
 
     def evaluate_result(self, result):
         if self.validationValue == result:
-            print("TestApp1 : Success")
+            print("testapp1 : Success")
         else:
-            print("TestApp1 : Fail")
+            print("testapp1 : Fail")
 
 class TestApp2Command(Command):
     def __init__(self, args):
@@ -244,16 +245,33 @@ class TestApp2Command(Command):
 
     def evaluate_result(self, result):
         if self.validationValue == result:
-            print("TestApp2 : Success")
+            print("testapp2 : Success")
         else:
-            print("TestApp2 : Fail")
+            print("testapp2 : Fail")
 
 class ScenarioRunner(Command):
     def __init__(self, args):
         if len(args) != 1:
             raise Exception(INVALID_COMMAND)
         self.__file_path = args[0]
+        self.__shell_file_path = SHELL_FILE_PATH
 
     def execute(self):
         if not os.path.exists(self.__file_path):
             raise FileExistsError("SCENARIO_FILE_PATH_ERROR")
+        if not os.path.exists(self.__shell_file_path):
+            raise FileExistsError("SCENARIO_FILE_PATH_ERROR")
+
+        with open(self.__file_path, 'r') as f:
+            scenario = f.readlines()
+
+        for cmd in scenario:
+            process = subprocess.Popen(['python', self.__shell_file_path],\
+                                       stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,\
+                                       text=True)
+            subprocess_cmd = cmd.strip() +'\nexit\n'
+            stdout, stderr = process.communicate(input=subprocess_cmd)
+            if f'{cmd.strip()} : Success' in stdout:
+                print(f'{cmd.strip()} : Success')
+            else:
+                print(f'{cmd.strip()} : Fail')

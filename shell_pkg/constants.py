@@ -1,6 +1,7 @@
 INVALID_COMMAND = 'INVALID COMMAND'
 ROOT_PATH = f'{__file__}/../..'
 SSD_FILE_PATH = f'{ROOT_PATH}/virtual_ssd_pkg/ssd.py'
+SHELL_FILE_PATH = f'{ROOT_PATH}/shell_pkg/shell.py'
 RESULT_FILE_PATH = f'{ROOT_PATH}/result.txt'
 HELP_MESSAGE = """============================== Command Guide ==============================
 1) write [LBA] [value]
