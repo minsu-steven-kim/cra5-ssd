@@ -84,6 +84,7 @@ class WriteCommand(Command):
             raise Exception(INVALID_COMMAND)
         self.lba = args[1]
         self.value = args[2]
+        self.validate()
 
     def validate(self):
         if self.is_invalid_lba(self.lba):
@@ -92,7 +93,6 @@ class WriteCommand(Command):
             raise Exception(INVALID_COMMAND)
 
     def execute(self):
-        self.validate()
         self.NAND_TXT = FileIO(self.nand_file)
         self.NAND_DATA = self.NAND_TXT.load()
         lba = int(self.lba)
@@ -107,14 +107,13 @@ class ReadCommand(Command):
         if len(args) != 2:
             raise Exception(INVALID_COMMAND)
         self.lba = args[1]
+        self.validate()
 
     def validate(self):
         if self.is_invalid_lba(self.lba):
             raise Exception(INVALID_COMMAND)
 
     def execute(self):
-        self.validate()
-
         nand_file_data = ['0x00000000' for _ in range(MAX_LBA + 1)]
         nand_file_io = FileIO(self.nand_file)
         nand_file_data_raw = nand_file_io.load().strip().split('\n')
@@ -133,6 +132,7 @@ class EraseCommand(Command):
             raise Exception(INVALID_COMMAND)
         self.lba = args[1]
         self.size = args[2]
+        self.validate()
 
     def validate(self):
         if self.is_invalid_lba(self.lba):
@@ -148,8 +148,6 @@ class EraseCommand(Command):
         return start_location, end_location
 
     def execute(self):
-        self.validate()
-
         start_location, end_location = self.set_range()
         self.NAND_TXT = FileIO(self.nand_file)
         self.NAND_DATA = self.NAND_TXT.load()
@@ -161,19 +159,13 @@ class EraseCommand(Command):
         self.NAND_TXT.save(self.NAND_DATA)
 
 
-class InvalidCommand(Command):
-    def validate(self):
-        pass
-
-    def execute(self):
-        raise Exception(INVALID_COMMAND)
-
 
 class FlushCommand(Command):
     def __init__(self, args):
         super().__init__()
         if len(args) != 1:
             raise Exception(INVALID_COMMAND)
+        self.validate()
 
     def validate(self):
         pass
@@ -192,3 +184,11 @@ class FlushCommand(Command):
             command.execute()
 
         buffer.save('')
+
+
+class InvalidCommand(Command):
+    def validate(self):
+        pass
+
+    def execute(self):
+        raise Exception(INVALID_COMMAND)
