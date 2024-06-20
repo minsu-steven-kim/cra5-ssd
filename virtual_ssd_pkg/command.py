@@ -26,7 +26,7 @@ class CommandFactory:
         elif args[0] == 'E':
             return EraseCommand(args)
         elif args[0] == 'F':
-            return FlushCommand()
+            return FlushCommand(args)
         else:
             return InvalidCommand()
 
@@ -170,6 +170,11 @@ class InvalidCommand(Command):
 
 
 class FlushCommand(Command):
+    def __init__(self, args):
+        super().__init__()
+        if len(args) != 1:
+            raise Exception(INVALID_COMMAND)
+
     def validate(self):
         pass
 
