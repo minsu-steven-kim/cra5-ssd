@@ -2,8 +2,6 @@ from datetime import datetime
 import inspect
 import os
 class Logger:
-    def __init__(self):
-        pass
     def print(self, log:str):
         now = datetime.now()
         dateFormat = now.strftime("%d.%m.%y %H:%M")
@@ -18,11 +16,7 @@ class Logger:
             fileSize = os.path.getsize(filePath)
             if fileSize >= 10240:
                 os.rename(filePath, newPath)
-                self.saveLog(filePath,fomattedLog)
-            else:
-                self.saveLog(filePath,fomattedLog)
-        else:
-            self.saveLog(filePath, fomattedLog)
+        self.saveLog(filePath, fomattedLog)
     def displayLog(self, fomattedLog:str):
         print(fomattedLog)
     def saveLog(self, filePath, log:str):
