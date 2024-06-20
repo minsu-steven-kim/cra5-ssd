@@ -6,7 +6,7 @@ class Logger:
         now = datetime.now()
         dateFormat = now.strftime("%y.%m.%d %H:%M")
         #method_name = inspect.currentframe().f_back.f_code.co_name
-        method_name = 'main' if __name__ == '__main__' else inspect.currentframe().f_back.f_code.co_name
+        method_name = 'main' if __name__ == 'logger_pkg.logger' else inspect.currentframe().f_back.f_code.co_name
         formmatedMathod = f'{self.__class__.__name__}.{method_name}()'
         fomattedLog = f'[{dateFormat}] {formmatedMathod:<30} : {log}'
         self.displayLog(fomattedLog)
