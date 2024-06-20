@@ -247,3 +247,12 @@ class TestApp2Command(Command):
             print("TestApp2 : Success")
         else:
             print("TestApp2 : Fail")
+
+class ScenarioRunner(Command):
+    def __init__(self, args):
+        if len(args) != 1:
+            raise Exception(INVALID_COMMAND)
+        self.file_name = args[0]
+
+    def execute(self):
+        pass
