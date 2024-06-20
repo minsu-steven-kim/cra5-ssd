@@ -21,3 +21,6 @@ HELP_MESSAGE = """============================== Command Guide =================
 : see the command guide."""
 MIN_LBA = 0
 MAX_LBA = 99
+MIN_ERASE_SIZE = 1
+MAX_ERASE_SIZE = 100
+MAX_SIZE_PER_COMMAND = 10

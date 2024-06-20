@@ -1,7 +1,6 @@
 import os
 import subprocess
 from unittest import TestCase
-from unittest.mock import patch
 
 from constants import INVALID_COMMAND, SSD_FILE_PATH, RESULT_FILE_PATH, NAND_FILE_PATH
 from ssd import VirtualSSD
