@@ -4,16 +4,10 @@ import os
 import io
 import sys
 
-
-current_dir = os.path.dirname(__file__)
-ROOT_dir = os.path.abspath(os.path.join(current_dir, '..'))
-sys.path.append(ROOT_dir)
-
-
-from logger_pkg.logger import Logger
 from constants import SSD_FILE_PATH, RESULT_FILE_PATH, INVALID_COMMAND, HELP_MESSAGE, \
-    MIN_LBA, MAX_LBA, MIN_ERASE_SIZE, MAX_ERASE_SIZE, MAX_SIZE_PER_COMMAND
-
+    MIN_LBA, MAX_LBA, MIN_ERASE_SIZE, MAX_ERASE_SIZE, MAX_SIZE_PER_COMMAND, ROOT_PATH
+sys.path.append(ROOT_PATH)
+from logger_pkg.logger import Logger
 class Command(ABC, Logger):
     @abstractmethod
     def execute(self):
