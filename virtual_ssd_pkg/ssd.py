@@ -13,7 +13,6 @@ class VirtualSSD:
         cmd = self.command_factory.create_command(args)
         cmd.execute(args)
 
-
 if __name__ == '__main__':
     ssd = VirtualSSD()
     try:
