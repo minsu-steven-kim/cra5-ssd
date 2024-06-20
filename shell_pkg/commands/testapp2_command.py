@@ -54,6 +54,6 @@ class Testapp2Command(Command):
 
     def evaluate_result(self, result):
         if self.validationValue == result:
-            print("TestApp2 : Success")
+            print("testapp2 : Success")
         else:
-            print("TestApp2 : Fail")
+            print("testapp2 : Fail")
