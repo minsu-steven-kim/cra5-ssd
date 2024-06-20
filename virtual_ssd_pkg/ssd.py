@@ -3,6 +3,12 @@ import sys
 from command import CommandFactory
 from constants import INVALID_COMMAND
 
+import os
+import sys
+current_dir = os.path.dirname(__file__)
+ROOT_dir = os.path.abspath(os.path.join(current_dir, '..'))
+sys.path.append(ROOT_dir)
+from logger_pkg.logger import Logger
 
 class VirtualSSD:
     def __init__(self):
@@ -18,4 +24,4 @@ if __name__ == '__main__':
     try:
         ssd.run()
     except Exception:
-        print(INVALID_COMMAND)
+        Logger().print(INVALID_COMMAND)
