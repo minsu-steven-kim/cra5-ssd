@@ -33,5 +33,4 @@ class ReadCommand(Command):
 
     def send_cmd_to_ssd(self):
         cmd = self.create_command()
-        print(cmd)
         self.run_command(cmd)

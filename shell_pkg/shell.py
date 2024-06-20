@@ -5,7 +5,7 @@ from constants import COMMAND_DIR_PATH, ROOT_PATH
 sys.path.append(ROOT_PATH)
 from logger_pkg.logger import Logger
 from commands.invalid_command import InvalidCommand
-
+from commands.scenario_runner import ScenarioRunner
 
 class Shell:
     def run(self):
@@ -42,6 +42,9 @@ class Shell:
     def determine_cmd(self, args):
         if len(args) == 0:
             return InvalidCommand()
+
+        if '.txt' in args[0]:
+            return ScenarioRunner(args)
 
         return self.get_command_module(args)
 
