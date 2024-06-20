@@ -179,7 +179,7 @@ class EraseRangeCommand(Command):
 
     def generate_commands(self):
         commands = []
-        size = int(self.__end_lba - self.__start_lba)
+        size = int(self.__end_lba) - int(self.__start_lba)
         lba = int(self.__start_lba)
 
         while size > 0:
@@ -206,8 +206,7 @@ class EraseRangeCommand(Command):
         commands = self.generate_commands()
 
         for command in commands:
-            print(command)
-        import pdb; pdb.set_trace()
+            EraseCommand(['erase', command[0], command[1]]).execute()
 
     def is_invalid_parameter(self):
         if self.is_invalid_lba(self.__start_lba):

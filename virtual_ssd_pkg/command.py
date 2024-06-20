@@ -66,7 +66,7 @@ class Command(ABC):
         return not bool(re.match(r'^0x[0-9A-F]{8}$', value))
 
     @staticmethod
-    def is_invalid_size(self, size: str):
+    def is_invalid_size(size: str):
         if type(size) != str:
             return True
         if len(size) == 0:
