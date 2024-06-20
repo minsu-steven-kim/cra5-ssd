@@ -7,8 +7,13 @@ class Logger:
     def print(self, log: str):
         now = datetime.now()
         dateFormat = now.strftime("%y.%m.%d %H:%M")
-        method_name = 'main' if __name__ == 'logger_pkg.logger' else inspect.currentframe().f_back.f_code.co_name
-        formmatedMathod = f'{self.__class__.__name__}.{method_name}()'
+        method_name = inspect.currentframe().f_back.f_code.co_name
+        if method_name == '<module>':
+            method_name = 'main'
+            class_name = os.path.basename(inspect.currentframe().f_back.f_globals["__file__"]).split('.')[0]
+        else:
+            class_name = self.__class__.__name__
+        formmatedMathod = f'{class_name}.{method_name}()'
         fomattedLog = f'[{dateFormat}] {formmatedMathod:<30} : {log}'
         self.displayLog(log)
 
