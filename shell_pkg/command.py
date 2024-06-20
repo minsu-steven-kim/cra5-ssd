@@ -3,7 +3,7 @@ import re
 import os
 import io
 import sys
-
+import subprocess
 
 current_dir = os.path.dirname(__file__)
 ROOT_dir = os.path.abspath(os.path.join(current_dir, '..'))
@@ -12,7 +12,7 @@ sys.path.append(ROOT_dir)
 
 from logger_pkg.logger import Logger
 from constants import SSD_FILE_PATH, RESULT_FILE_PATH, INVALID_COMMAND, HELP_MESSAGE, \
-    MIN_LBA, MAX_LBA, MIN_ERASE_SIZE, MAX_ERASE_SIZE, MAX_SIZE_PER_COMMAND
+    MIN_LBA, MAX_LBA, MIN_ERASE_SIZE, MAX_ERASE_SIZE, MAX_SIZE_PER_COMMAND, , SHELL_FILE_PATH
 
 class Command(ABC, Logger):
     @abstractmethod
@@ -312,9 +312,9 @@ class TestApp1Command(Command):
 
     def evaluate_result(self, result):
         if self.validationValue == result:
-            print("TestApp1 : Success")
+            print("testapp1 : Success")
         else:
-            print("TestApp1 : Fail")
+            print("testapp1 : Fail")
 
 
 class TestApp2Command(Command):
@@ -365,6 +365,61 @@ class TestApp2Command(Command):
 
     def evaluate_result(self, result):
         if self.validationValue == result:
-            print("TestApp2 : Success")
+            print("testapp2 : Success")
         else:
-            print("TestApp2 : Fail")
+            print("testapp2 : Fail")
+
+class ScenarioRunner(Command):
+    def __init__(self, args):
+        if len(args) != 1:
+            raise Exception(INVALID_COMMAND)
+        self.__file_path = args[0]
+        self.__shell_file_path = SHELL_FILE_PATH
+
+    def execute(self):
+        if not os.path.exists(self.__file_path):
+            raise FileExistsError("SCENARIO_FILE_PATH_ERROR")
+        if not os.path.exists(self.__shell_file_path):
+            raise FileExistsError("SCENARIO_FILE_PATH_ERROR")
+
+        scenario = self.get_scenario()
+        self.execute_script_in_scenario(scenario)
+
+    def execute_script_in_scenario(self, scenario):
+        for script in scenario:
+            script = script.strip()
+            stdout = self.call_shell_subprocess(script)
+            if self.executed_successfully(script, stdout):
+                self.print_success_log(script)
+            else:
+                self.print_fail_log(script)
+                break
+
+    def get_scenario(self):
+        with open(self.__file_path, 'r') as f:
+            scenario = f.readlines()
+        return scenario
+
+    def call_shell_subprocess(self, script):
+        process = subprocess.Popen(['python', self.__shell_file_path], \
+                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, \
+                                   text=True)
+        subprocess_cmd = script + '\nexit\n'
+        self.print_execute_script_log(script)
+        stdout, stderr = process.communicate(input=subprocess_cmd)
+        return stdout
+
+    def print_execute_script_log(self, script):
+        print(f'{script} --- Run...', end='')
+
+    def executed_successfully(self, script, output):
+        if f'{script} : Success' in output:
+            return True
+        else:
+            return False
+
+    def print_success_log(self, script):
+        print('Pass')
+
+    def print_fail_log(self, script):
+        print('FAIL!')

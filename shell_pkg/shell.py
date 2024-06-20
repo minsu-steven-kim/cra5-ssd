@@ -1,6 +1,6 @@
 from command import InvalidCommand, ExitCommand, HelpCommand, WriteCommand, ReadCommand, EraseCommand, \
     EraseRangeCommand, FullreadCommand, \
-    FullwriteCommand, TestApp1Command, TestApp2Command
+    FullwriteCommand, TestApp1Command, TestApp2Command, ScenarioRunner
 
 
 class Shell:
@@ -39,7 +39,7 @@ class Shell:
         elif args[0] == 'testapp2':
             return TestApp2Command(args)
         else:
-            return InvalidCommand()
+            return ScenarioRunner(args)
 
 
 if __name__ == '__main__':
