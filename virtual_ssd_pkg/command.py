@@ -46,6 +46,10 @@ class Command(ABC):
     def validate(self):
         pass
 
+    @abstractmethod
+    def serialize(self):
+        pass
+
     @staticmethod
     def is_invalid_lba(lba: str):
         if type(lba) != str:
@@ -100,6 +104,9 @@ class WriteCommand(Command):
         self.NAND_DATA = self.NAND_DATA[:lba * 11] + data + self.NAND_DATA[(lba + 1) * 11 - 1:]
         self.NAND_TXT.save(self.NAND_DATA)
 
+    def serialize(self):
+        return f'W {self.lba} {self.value}'
+
 
 class ReadCommand(Command):
     def __init__(self, args):
@@ -123,6 +130,9 @@ class ReadCommand(Command):
 
         result_file_io = FileIO(self.result_file)
         result_file_io.save(nand_file_data[int(self.lba)])
+
+    def serialize(self):
+        return f'R {self.lba}'
 
 
 class EraseCommand(Command):
@@ -158,6 +168,8 @@ class EraseCommand(Command):
 
         self.NAND_TXT.save(self.NAND_DATA)
 
+    def serialize(self):
+        return f'E {self.lba} {self.size}'
 
 
 class FlushCommand(Command):
@@ -185,6 +197,9 @@ class FlushCommand(Command):
 
         buffer.save('')
 
+    def serialize(self):
+        return 'F'
+
 
 class InvalidCommand(Command):
     def validate(self):
@@ -192,3 +207,6 @@ class InvalidCommand(Command):
 
     def execute(self):
         raise Exception(INVALID_COMMAND)
+
+    def serialize(self):
+        return ''
