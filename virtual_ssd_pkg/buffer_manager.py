@@ -1,6 +1,6 @@
 import os.path
 
-from command import Command, FlushCommand, ReadCommand, WriteCommand, EraseCommand
+from command import Command, FlushCommand, ReadCommand, WriteCommand, EraseCommand, CommandFactory
 from constants import BUFFER_FILE_PATH, MAX_CMD_BUFFER, INVALID_COMMAND
 
 
@@ -42,9 +42,41 @@ class BufferManager:
         # TODO
         return cmd_list + [current_cmd.serialize()]
 
-    def optimize_command_buffer_for_write(self, cmd_list, current_cmd: Command):
-        # TODO
-        return cmd_list + [current_cmd.serialize()]
+    def optimize_command_buffer_for_write(self, cmd_list, curr: WriteCommand):
+        cmd_list = [CommandFactory().create_command(args.split()) for args in cmd_list]
+        optimized = []
+
+        def process_prev_write(before: WriteCommand):
+            before_lba = int(before.lba)
+            curr_lba = int(curr.lba)
+            if before_lba == curr_lba:
+                return []
+            return [before]
+
+        def process_prev_erase(before: EraseCommand):
+            before_lba = int(before.lba)
+            before_size = int(before.size)
+            curr_lba = int(curr.lba)
+
+            if not before_lba <= curr_lba < (before_lba + before_size):
+                return [before]
+
+            ret = []
+            if before_lba < curr_lba:
+                ret.append(EraseCommand(['E', str(before_lba), str(curr_lba - before_lba)]))
+            if curr_lba + 1 < before_lba + before_size:
+                ret.append(EraseCommand(['E', str(curr_lba + 1), str(before_lba + before_size - curr_lba - 1)]))
+            return ret
+
+        for prev in cmd_list:
+            if isinstance(prev, WriteCommand):
+                optimized += process_prev_write(prev)
+            elif isinstance(prev, EraseCommand):
+                optimized += process_prev_erase(prev)
+            else:
+                optimized += [prev]
+
+        return [cmd.serialize() for cmd in optimized] + [curr.serialize()]
 
     def optimize_command_buffer_for_erase(self, cmd_list, current_cmd: Command):
         # TODO

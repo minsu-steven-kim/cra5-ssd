@@ -25,4 +25,4 @@ if __name__ == '__main__':
     try:
         ssd.run()
     except Exception as e:
-        Logger().print(e)
+        Logger().print(str(e))
