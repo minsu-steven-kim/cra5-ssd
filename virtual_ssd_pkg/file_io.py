@@ -1,4 +1,4 @@
-from constants import RESULT_FILE_PATH
+from constants import RESULT_FILE_PATH, BUFFER_FILE_PATH
 
 
 class FileIO:
@@ -10,12 +10,16 @@ class FileIO:
             with open(self.filename, 'r') as f:
                 if self.filename == RESULT_FILE_PATH:
                     return f.read()
+                if self.filename == BUFFER_FILE_PATH:
+                    return f.read()
                 file_read = f.read()
                 if len(file_read) != 1100:
                     f.close()
                     file_read = self.initial_read()
                 return file_read
         except FileNotFoundError:
+            if self.filename == BUFFER_FILE_PATH:
+                return ''
             return self.initial_read()
 
     def save(self, data):
