@@ -1,8 +1,10 @@
 from datetime import datetime
 import inspect
 import os
+
+
 class Logger:
-    def print(self, log:str):
+    def print(self, log: str):
         now = datetime.now()
         dateFormat = now.strftime("%y.%m.%d %H:%M")
         method_name = 'main' if __name__ == 'logger_pkg.logger' else inspect.currentframe().f_back.f_code.co_name
@@ -17,8 +19,10 @@ class Logger:
             if fileSize >= 10240:
                 os.rename(filePath, newPath)
         self.saveLog(filePath, fomattedLog)
-    def displayLog(self, fomattedLog:str):
+
+    def displayLog(self, fomattedLog: str):
         print(fomattedLog)
-    def saveLog(self, filePath, log:str):
+
+    def saveLog(self, filePath, log: str):
         with open(filePath, 'a') as f:
-            f.write(log+'\n')
+            f.write(log + '\n')

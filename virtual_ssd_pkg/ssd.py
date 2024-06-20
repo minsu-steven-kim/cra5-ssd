@@ -19,5 +19,5 @@ if __name__ == '__main__':
     ssd = VirtualSSD()
     try:
         ssd.run()
-    except Exception:
-        Logger().print(INVALID_COMMAND)
+    except Exception as e:
+        Logger().print(e)
