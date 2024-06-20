@@ -290,7 +290,7 @@ class ScenarioRunner(Command):
         return stdout
 
     def print_execute_script_log(self, script):
-        print(f'{script} --- Run ...', end='')
+        print(f'{script} --- Run...', end='')
 
     def executed_successfully(self, script, output):
         if f'{script} : Success' in output:
