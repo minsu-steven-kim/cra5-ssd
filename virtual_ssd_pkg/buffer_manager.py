@@ -9,7 +9,7 @@ class BufferManager:
         pass
 
     def run_flush_command(self):
-        FlushCommand("F").execute()
+        FlushCommand(["F"]).execute()
 
     def list_to_str(self, list_value):
         return ' '.join(map(str, list_value))
