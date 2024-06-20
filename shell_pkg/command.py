@@ -206,6 +206,12 @@ class TestApp2Command(Command):
         self.test2Count = 30
         self.validationValue = '0x12345678\n' * (self.testLBAmax + 1)
 
+    def execute(self):
+        self.write_test1()
+        self.write_test2()
+        result = self.read_test()
+        self.evaluate_result(result)
+
     def write_test1(self):
         args_list = [['write', str(i), self.testValue1] for i in range(self.testLBAmax + 1)]
         for args in args_list:
@@ -220,12 +226,24 @@ class TestApp2Command(Command):
             write_command.execute()
 
     def read_test(self):
+        buffer = io.StringIO()
+        original_stdout = sys.stdout
+        sys.stdout = buffer
+
         args_list = [['read', str(i)] for i in range(self.testLBAmax + 1)]
         for args in args_list:
             read_command = ReadCommand(args)
             read_command.execute()
 
-    def execute(self):
-        self.write_test1()
-        self.write_test2()
-        self.read_test()
+        sys.stdout = original_stdout
+        result = buffer.getvalue()
+
+        print(result)
+        buffer.close()
+        return result
+
+    def evaluate_result(self, result):
+        if self.validationValue == result:
+            print("TestApp2 : Success")
+        else:
+            print("TestApp2 : Fail")
