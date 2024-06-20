@@ -163,7 +163,7 @@ class EraseCommand(Command):
 class FlushCommand(Command):
     def __init__(self, args):
         super().__init__()
-        if len(args) != 1:
+        if len(args) != 1 and type(args) is not list:
             raise Exception(INVALID_COMMAND)
         self.validate()
 
