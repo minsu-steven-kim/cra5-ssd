@@ -21,7 +21,7 @@ class Command(ABC):
             return True
         if not lba.isdigit():
             return True
-        if  MIN_LBA > int(lba) or int(lba) > MAX_LBA:
+        if MIN_LBA > int(lba) or int(lba) > MAX_LBA:
             return True
         return False
 
@@ -30,17 +30,16 @@ class Command(ABC):
             return True
         return not bool(re.match(r'^0x[0-9A-F]{8}$', value))
 
-    def is_invalid_size(self, size:str):
+    def is_invalid_size(self, size: str):
         if type(size) != str:
             return True
         if len(size) == 0:
             return True
         if not size.isdigit():
             return True
-        if  int(size) < 1 or int(size) > 10:
+        if int(size) < 1 or int(size) > 10:
             return True
         return False
-
 
     def is_invalid_parameter_in_write(self, args):
         if len(args) != 3:
@@ -51,7 +50,7 @@ class Command(ABC):
             return True
         return False
 
-    def is_invalid_parameter_in_read(self,args):
+    def is_invalid_parameter_in_read(self, args):
         if len(args) != 2:
             return True
         if self.is_invalid_lba(args[1]):
@@ -66,7 +65,6 @@ class Command(ABC):
         if self.is_invalid_size(args[2]):
             return True
         return False
-
 
 
 class WriteCommand(Command):
@@ -95,8 +93,9 @@ class ReadCommand(Command):
         result_file_io = FileIO(self.result_file)
         result_file_io.save(nand_file_data[int(args[1])])
 
+
 class EraseCommand(Command):
-    def set_range(self,lba, size):
+    def set_range(self, lba, size):
         self.start_location = int(lba)
         self.end_location = self.start_location + int(size)
         if self.end_location > MAX_LBA:
@@ -105,18 +104,14 @@ class EraseCommand(Command):
     def execute(self, args):
         if self.is_invalid_parameter_in_erase(args):
             raise Exception(INVALID_COMMAND)
-        self.set_range(args[1],args[2])
-
+        self.set_range(args[1], args[2])
 
         self.NAND_TXT = FileIO(self.nand_file)
         self.NAND_DATA = self.NAND_TXT.load()
 
-        # self.NAND_DATA = self.NAND_DATA[:lba * 11] + data + self.NAND_DATA[(lba + 1) * 11 - 1:]
-
         for lba in range(self.start_location, self.end_location):
             loc = lba * 11
             self.NAND_DATA = self.NAND_DATA[:loc] + "0x00000000" + self.NAND_DATA[loc + 10:]
-            # self.NAND_DATA[loc, loc + 10] = "0x00000000"
         self.NAND_TXT.save(self.NAND_DATA)
 
 
