@@ -12,7 +12,7 @@ sys.path.append(ROOT_dir)
 
 from logger_pkg.logger import Logger
 from constants import SSD_FILE_PATH, RESULT_FILE_PATH, INVALID_COMMAND, HELP_MESSAGE, \
-    MIN_LBA, MAX_LBA
+    MIN_LBA, MAX_LBA, MIN_ERASE_SIZE, MAX_ERASE_SIZE, MAX_SIZE_PER_COMMAND
 
 class Command(ABC, Logger):
     @abstractmethod
@@ -41,6 +41,7 @@ class ExitCommand(Command):
     def __init__(self, args):
         if len(args) != 1:
             raise Exception(INVALID_COMMAND)
+
     def execute(self):
         return 1
 
@@ -49,6 +50,7 @@ class HelpCommand(Command):
     def __init__(self, args):
         if len(args) != 1:
             raise Exception(INVALID_COMMAND)
+
     def execute(self):
         self.print(HELP_MESSAGE)
         return 0
@@ -104,6 +106,118 @@ class WriteCommand(Command):
 
     def get_write_cmd_line(self):
         return f"python {self.__file_path} W {self.__lba} {self.__value}"
+
+
+class EraseCommand(Command):
+    def __init__(self, args):
+        if len(args) != 3:
+            raise Exception(INVALID_COMMAND)
+        self.__lba = args[1]
+        self.__size = args[2]
+        self.__file_path = SSD_FILE_PATH
+
+    def is_invalid_size(self, size: str):
+        if type(size) != str:
+            return True
+        if not size.isdigit():
+            return True
+        if MIN_ERASE_SIZE > int(size) or MAX_ERASE_SIZE < int(size):
+            return True
+        return False
+
+    def generate_commands(self):
+        commands = []
+        size = int(self.__size)
+        lba = int(self.__lba)
+
+        while size > 0:
+            current_size = min(size, MAX_SIZE_PER_COMMAND)
+
+            if lba > MAX_LBA:
+                break
+            if lba + current_size > 100:
+                current_size = 100 - lba
+
+            commands.append(self.get_write_cmd_line(str(lba), str(current_size)))
+            lba += current_size
+            size -= current_size
+
+        return commands
+
+    def execute(self):
+        if self.is_invalid_parameter():
+            raise Exception(INVALID_COMMAND)
+        if not os.path.exists(self.__file_path):
+            raise FileExistsError("VIRTUAL_SSD_PATH_ERROR")
+
+        commands = self.generate_commands()
+
+        for command in commands:
+            self.run_command(command)
+
+    def is_invalid_parameter(self):
+        if self.is_invalid_lba(self.__lba):
+            return True
+        if self.is_invalid_size(self.__size):
+            return True
+        return False
+
+    def get_write_cmd_line(self, lba, size):
+        return f"python {self.__file_path} E {lba} {size}"
+
+
+class EraseRangeCommand(Command):
+    def __init__(self, args):
+        if len(args) != 3:
+            raise Exception(INVALID_COMMAND)
+        self.__start_lba = args[1]
+        self.__end_lba = args[2]
+        self.__file_path = SSD_FILE_PATH
+
+    def is_invalid_end_lba(self, start_lba: str, end_lba: str):
+        if int(start_lba) > int(end_lba):
+            return True
+        return False
+
+    def generate_commands(self):
+        commands = []
+        size = int(self.__end_lba) - int(self.__start_lba)
+        lba = int(self.__start_lba)
+
+        while size > 0:
+            current_size = min(size, MAX_SIZE_PER_COMMAND)
+
+            if lba > MAX_LBA:
+                break
+
+            if lba + current_size > 100:
+                current_size = 100 - lba
+
+            commands.append([str(lba), str(current_size)])
+            lba += current_size
+            size -= current_size
+
+        return commands
+
+    def execute(self):
+        if self.is_invalid_parameter():
+            raise Exception(INVALID_COMMAND)
+        if not os.path.exists(self.__file_path):
+            raise FileExistsError("VIRTUAL_SSD_PATH_ERROR")
+
+        commands = self.generate_commands()
+
+        for command in commands:
+            EraseCommand(['erase', command[0], command[1]]).execute()
+
+    def is_invalid_parameter(self):
+        if self.is_invalid_lba(self.__start_lba):
+            return True
+        if self.is_invalid_lba(self.__end_lba):
+            return True
+        if self.is_invalid_end_lba(self.__start_lba, self.__end_lba):
+            return True
+        return False
 
 
 class ReadCommand(Command):
@@ -201,6 +315,7 @@ class TestApp1Command(Command):
             print("TestApp1 : Success")
         else:
             print("TestApp1 : Fail")
+
 
 class TestApp2Command(Command):
     def __init__(self, args):
