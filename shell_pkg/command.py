@@ -252,7 +252,8 @@ class ScenarioRunner(Command):
     def __init__(self, args):
         if len(args) != 1:
             raise Exception(INVALID_COMMAND)
-        self.file_name = args[0]
+        self.__file_path = args[0]
 
     def execute(self):
-        pass
+        if not os.path.exists(self.__file_path):
+            raise FileExistsError("SCENARIO_FILE_PATH_ERROR")
