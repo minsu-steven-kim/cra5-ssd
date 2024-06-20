@@ -1,7 +1,7 @@
 import sys
 
 from constants import INVALID_COMMAND
-from command import InvalidCommand, WriteCommand, ReadCommand
+from command import InvalidCommand, WriteCommand, ReadCommand, FlushCommand
 
 
 class VirtualSSD:
@@ -20,6 +20,8 @@ class VirtualSSD:
             return WriteCommand()
         elif args[0] == 'R':
             return ReadCommand()
+        elif args[0] == 'F':
+            return FlushCommand()
         else:
             return InvalidCommand()
 

@@ -1,7 +1,7 @@
 import re
 from abc import ABC, abstractmethod
 
-from constants import INVALID_COMMAND, NAND_FILE_PATH, RESULT_FILE_PATH, MIN_LBA, MAX_LBA
+from constants import INVALID_COMMAND, NAND_FILE_PATH, RESULT_FILE_PATH, MIN_LBA, MAX_LBA, BUFFER_FILE_PATH
 from file_io import FileIO
 
 
@@ -9,6 +9,7 @@ class Command(ABC):
     def __init__(self):
         self.nand_file = NAND_FILE_PATH
         self.result_file = RESULT_FILE_PATH
+        self.buffer_file = BUFFER_FILE_PATH
 
     @abstractmethod
     def execute(self, args):
@@ -21,7 +22,7 @@ class Command(ABC):
             return True
         if not lba.isdigit():
             return True
-        if  MIN_LBA > int(lba) or int(lba) > MAX_LBA:
+        if MIN_LBA > int(lba) or int(lba) > MAX_LBA:
             return True
         return False
 
@@ -74,3 +75,32 @@ class InvalidCommand(Command):
 
     def execute(self, args):
         raise Exception(INVALID_COMMAND)
+
+
+class FlushCommand(Command):
+    def execute(self, args):
+        buffer = FileIO(self.buffer_file)
+        raw_string = buffer.load().strip()
+
+        if len(raw_string) == 0:
+            return
+
+        command_strings = raw_string.split('\n')
+        for command_string in command_strings:
+            args = command_string.split()
+            command = self.determine_cmd(args)
+            command.execute(args)
+
+        buffer.save('')
+
+    def determine_cmd(self, args):
+        if len(args) == 0:
+            return InvalidCommand()
+        elif args[0] == 'W':
+            return WriteCommand()
+        elif args[0] == 'R':
+            return ReadCommand()
+        elif args[0] == 'F':
+            return FlushCommand()
+        else:
+            return InvalidCommand()
