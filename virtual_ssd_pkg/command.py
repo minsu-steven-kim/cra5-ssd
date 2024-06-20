@@ -5,8 +5,32 @@ from constants import INVALID_COMMAND, NAND_FILE_PATH, RESULT_FILE_PATH, MIN_LBA
 from file_io import FileIO
 
 
+class CommandFactory:
+    _instance = None
+
+    @classmethod
+    def get_instance(cls):
+        if not cls._instance:
+            cls._instance = CommandFactory()
+        return cls._instance
+
+    @staticmethod
+    def create_command(args):
+        if len(args) == 0:
+            return InvalidCommand()
+        elif args[0] == 'W':
+            return WriteCommand()
+        elif args[0] == 'R':
+            return ReadCommand()
+        elif args[0] == 'F':
+            return FlushCommand()
+        else:
+            return InvalidCommand()
+
+
 class Command(ABC):
     def __init__(self):
+        self.command_factory = CommandFactory()
         self.nand_file = NAND_FILE_PATH
         self.result_file = RESULT_FILE_PATH
         self.buffer_file = BUFFER_FILE_PATH
@@ -15,7 +39,8 @@ class Command(ABC):
     def execute(self, args):
         pass
 
-    def is_invalid_lba(self, lba: str):
+    @staticmethod
+    def is_invalid_lba(lba: str):
         if type(lba) != str:
             return True
         if len(lba) == 0:
@@ -26,7 +51,8 @@ class Command(ABC):
             return True
         return False
 
-    def is_invalid_value(self, value: str):
+    @staticmethod
+    def is_invalid_value(value: str):
         if type(value) != str:
             return True
         return not bool(re.match(r'^0x[0-9A-F]{8}$', value))
@@ -88,19 +114,7 @@ class FlushCommand(Command):
         command_strings = raw_string.split('\n')
         for command_string in command_strings:
             args = command_string.split()
-            command = self.determine_cmd(args)
+            command = self.command_factory.create_command(args)
             command.execute(args)
 
         buffer.save('')
-
-    def determine_cmd(self, args):
-        if len(args) == 0:
-            return InvalidCommand()
-        elif args[0] == 'W':
-            return WriteCommand()
-        elif args[0] == 'R':
-            return ReadCommand()
-        elif args[0] == 'F':
-            return FlushCommand()
-        else:
-            return InvalidCommand()
