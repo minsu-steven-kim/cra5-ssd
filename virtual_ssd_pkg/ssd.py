@@ -17,7 +17,7 @@ class VirtualSSD:
         cmd = self.command_factory.create_command(args)
         self.bm.run(cmd)
         # TO-DO: FlushCommand 만 BufferManager 거치지 않도록 수정 필요
-        # cmd.execute(args)
+        # cmd.execute()
 
 
 if __name__ == '__main__':
