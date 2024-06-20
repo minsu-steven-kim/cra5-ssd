@@ -1,4 +1,5 @@
-from command import InvalidCommand, ExitCommand, HelpCommand, WriteCommand, ReadCommand, EraseCommand, FullreadCommand, \
+from command import InvalidCommand, ExitCommand, HelpCommand, WriteCommand, ReadCommand, EraseCommand, \
+    EraseRangeCommand, FullreadCommand, \
     FullwriteCommand, TestApp1Command, TestApp2Command
 
 
@@ -27,6 +28,8 @@ class Shell:
             return ReadCommand(args)
         elif args[0] == 'erase':
             return EraseCommand(args)
+        elif args[0] == 'erase_range':
+            return EraseRangeCommand(args)
         elif args[0] == 'fullwrite':
             return FullwriteCommand(args)
         elif args[0] == 'fullread':
