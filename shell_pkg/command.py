@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 import re
 import os
+import io
+import sys
 
 from constants import SSD_FILE_PATH, RESULT_FILE_PATH, INVALID_COMMAND, HELP_MESSAGE, \
     MIN_LBA, MAX_LBA
@@ -167,9 +169,23 @@ class TestApp1Command(Command):
     def execute(self):
         fullWrite = FullwriteCommand(['fullwrite', self.testValue])
         fullWrite.execute()
+
+        buffer = io.StringIO()
+        original_stdout = sys.stdout
+        sys.stdout = buffer
+
         fullRead = FullreadCommand(['fullread'])
         fullRead.execute()
 
+        sys.stdout = original_stdout
+        result = buffer.getvalue()
+        print(result)
+        buffer.close()
+
+        if self.validationValue == result:
+            print("TestApp1 : Success")
+        else:
+            print("TestApp1 : Fail")
 
 class TestApp2Command(Command):
     def __init__(self, args):
