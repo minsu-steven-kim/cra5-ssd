@@ -1,6 +1,6 @@
 from command import InvalidCommand, ExitCommand, HelpCommand, WriteCommand, ReadCommand, EraseCommand, \
     EraseRangeCommand, FullreadCommand, \
-    FullwriteCommand, TestApp1Command, TestApp2Command, ScenarioRunner
+    FullwriteCommand, TestApp1Command, TestApp2Command, ScenarioRunner, FlushCommand
 
 import sys
 from constants import ROOT_PATH
@@ -38,6 +38,8 @@ class Shell:
             return FullwriteCommand(args)
         elif args[0] == 'fullread':
             return FullreadCommand(args)
+        elif args[0] == 'flush':
+            return FlushCommand(args)
         elif args[0] == 'testapp1':
             return TestApp1Command(args)
         elif args[0] == 'testapp2':
