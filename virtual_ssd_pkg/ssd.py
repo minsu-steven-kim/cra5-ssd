@@ -1,5 +1,5 @@
 import sys
-from command import CommandFactory
+from command import CommandFactory, FlushCommand
 from constants import INVALID_COMMAND
 from buffer_manager import BufferManager
 
@@ -16,10 +16,10 @@ class VirtualSSD:
         args = sys.argv[1:]
         cmd = self.command_factory.create_command(args)
 
-        if type(cmd).__name__ == "FlushCommand":
+        if isinstance(cmd, FlushCommand):
             cmd.execute()
         else:
-            self.bm.run(args)
+            self.bm.run(cmd)
 
 
 if __name__ == '__main__':
