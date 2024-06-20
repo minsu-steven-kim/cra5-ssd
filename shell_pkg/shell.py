@@ -2,6 +2,10 @@ from command import InvalidCommand, ExitCommand, HelpCommand, WriteCommand, Read
     EraseRangeCommand, FullreadCommand, \
     FullwriteCommand, TestApp1Command, TestApp2Command, ScenarioRunner
 
+import sys
+from constants import ROOT_PATH
+sys.path.append(ROOT_PATH)
+from logger_pkg.logger import Logger
 
 class Shell:
     def run(self):
@@ -13,7 +17,7 @@ class Shell:
                 cmd = self.determine_cmd(args)
                 is_exit = cmd.execute()
             except Exception as e:
-                print(e)
+                Logger().print(e)
 
     def determine_cmd(self, args):
         if len(args) == 0:
