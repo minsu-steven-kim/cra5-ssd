@@ -128,7 +128,7 @@ class ReadCommand(Command):
 class EraseCommand(Command):
     def __init__(self, args):
         super().__init__()
-        if len(args) != 2:
+        if len(args) != 3:
             raise Exception(INVALID_COMMAND)
         self.lba = args[1]
         self.size = args[2]
