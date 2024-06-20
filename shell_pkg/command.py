@@ -168,12 +168,8 @@ class EraseRangeCommand(Command):
         self.__end_lba = args[2]
         self.__file_path = SSD_FILE_PATH
 
-    def is_invalid_size(self, size: str):
-        if type(size) != str:
-            return True
-        if not size.isdigit():
-            return True
-        if MIN_ERASE_SIZE > int(size) or MAX_ERASE_SIZE < int(size):
+    def is_invalid_end_lba(self, start_lba: str, end_lba: str):
+        if int(start_lba) > int(end_lba):
             return True
         return False
 
@@ -212,6 +208,8 @@ class EraseRangeCommand(Command):
         if self.is_invalid_lba(self.__start_lba):
             return True
         if self.is_invalid_lba(self.__end_lba):
+            return True
+        if self.is_invalid_end_lba(self.__start_lba, self.__end_lba):
             return True
         return False
 
@@ -311,6 +309,7 @@ class TestApp1Command(Command):
             print("TestApp1 : Success")
         else:
             print("TestApp1 : Fail")
+
 
 class TestApp2Command(Command):
     def __init__(self, args):
