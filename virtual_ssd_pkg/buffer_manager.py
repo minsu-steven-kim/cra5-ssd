@@ -47,11 +47,15 @@ class BufferManager:
         optimized = []
 
         def process_prev_write(before: WriteCommand):
-            before_lba = int(before.lba)
-            curr_lba = int(curr.lba)
-            if before_lba == curr_lba:
+            if int(before.lba) == int(curr.lba):
                 return []
             return [before]
+
+        def create_erase_command(start: int, end: int):
+            if start < end:
+                return EraseCommand(['E', str(start), str(end - start)])
+            else:
+                return None
 
         def process_prev_erase(before: EraseCommand):
             before_lba = int(before.lba)
@@ -61,11 +65,14 @@ class BufferManager:
             if not before_lba <= curr_lba < (before_lba + before_size):
                 return [before]
 
+            left_erase = create_erase_command(before_lba, curr_lba)
+            right_erase = create_erase_command(curr_lba + 1, before_lba + before_size)
+
             ret = []
-            if before_lba < curr_lba:
-                ret.append(EraseCommand(['E', str(before_lba), str(curr_lba - before_lba)]))
-            if curr_lba + 1 < before_lba + before_size:
-                ret.append(EraseCommand(['E', str(curr_lba + 1), str(before_lba + before_size - curr_lba - 1)]))
+            if left_erase is not None:
+                ret.append(left_erase)
+            if right_erase is not None:
+                ret.append(right_erase)
             return ret
 
         for prev in cmd_list:
