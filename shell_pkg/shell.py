@@ -9,15 +9,22 @@ from commands.scenario_runner import ScenarioRunner
 
 class Shell:
     def run(self):
-        is_exit = 0
-        while not is_exit:
+        if len(sys.argv) == 2:
             try:
-                print('> ', end='')
-                args = input().split()
-                cmd = self.determine_cmd(args)
-                is_exit = cmd.execute()
+                cmd = ScenarioRunner([sys.argv[1]])
+                cmd.execute()
             except Exception as e:
                 Logger().print(e)
+        else:
+            is_exit = 0
+            while not is_exit:
+                try:
+                    print('> ', end='')
+                    args = input().split()
+                    cmd = self.determine_cmd(args)
+                    is_exit = cmd.execute()
+                except Exception as e:
+                    Logger().print(e)
 
     def get_class_name(self, name: str):
         components = name.split('_')
@@ -42,9 +49,6 @@ class Shell:
     def determine_cmd(self, args):
         if len(args) == 0:
             return InvalidCommand()
-
-        if '.txt' in args[0]:
-            return ScenarioRunner(args)
 
         return self.get_command_module(args)
 
