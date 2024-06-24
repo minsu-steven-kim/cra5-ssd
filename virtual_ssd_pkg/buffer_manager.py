@@ -1,6 +1,6 @@
 import os.path
 
-from command import Command, FlushCommand, ReadCommand, WriteCommand, EraseCommand
+from command import Command, FlushCommand, ReadCommand, WriteCommand, EraseCommand, CommandFactory
 from constants import BUFFER_FILE_PATH, MAX_CMD_BUFFER, INVALID_COMMAND
 
 
@@ -45,13 +45,52 @@ class BufferManager:
         # TODO
         return cmd_list + [current_cmd.serialize()]
 
-    def optimize_command_buffer_for_write(self, cmd_list, current_cmd: Command):
-        # TODO
-        return cmd_list + [current_cmd.serialize()]
+    def optimize_command_buffer_for_write(self, cmd_list, curr: WriteCommand):
+        cmd_list = [CommandFactory().create_command(args.split()) for args in cmd_list]
+        optimized = []
+
+        def process_prev_write(before: WriteCommand):
+            if int(before.lba) == int(curr.lba):
+                return []
+            return [before]
+
+        def create_erase_command(start: int, end: int):
+            if start < end:
+                return EraseCommand(['E', str(start), str(end - start)])
+            else:
+                return None
+
+        def process_prev_erase(before: EraseCommand):
+            before_lba = int(before.lba)
+            before_size = int(before.size)
+            curr_lba = int(curr.lba)
+
+            if not before_lba <= curr_lba < (before_lba + before_size):
+                return [before]
+
+            left_erase = create_erase_command(before_lba, curr_lba)
+            right_erase = create_erase_command(curr_lba + 1, before_lba + before_size)
+
+            ret = []
+            if left_erase is not None:
+                ret.append(left_erase)
+            if right_erase is not None:
+                ret.append(right_erase)
+            return ret
+
+        for prev in cmd_list:
+            if isinstance(prev, WriteCommand):
+                optimized += process_prev_write(prev)
+            elif isinstance(prev, EraseCommand):
+                optimized += process_prev_erase(prev)
+            else:
+                optimized += [prev]
+
+        return [cmd.serialize() for cmd in optimized] + [curr.serialize()]
 
     def optimize_command_buffer_for_erase(self, cmd_list, current_cmd: EraseCommand):
-        cur_lba = current_cmd.lba
-        cur_size = current_cmd.size
+        cur_lba = int(current_cmd.lba)
+        cur_size = int(current_cmd.size)
 
         original_cur_lba = cur_lba
         original_cur_end = cur_lba + cur_size
@@ -89,13 +128,13 @@ class BufferManager:
 
                 # 2 한 쪽이 포함될 때
                     # 현재가 과거에 완전 포함일 경우
-                if past_lba <= cur_lba and cur_end <= past_lba:
+                if past_lba <= cur_lba and cur_end <= past_end:
                     ret_list.append(cmd_list[i])
                     finish_flag = True
                     continue
 
                     # 과거가 현재에 완전 포함일 경우
-                if cur_lba <= past_lba and past_end <= cur_lba:
+                if cur_lba <= past_lba and past_end <= cur_end:
                     continue
 
                 # 3 완벽히 붙을 때
@@ -128,6 +167,7 @@ class BufferManager:
                         cur_size = cur_size - val
                     else:
                         past_lba -= cur_size
+                        past_size += cur_size
                         finish_flag = True
                     ret_list.append(f"E {past_lba} {past_size}")
                     continue
@@ -156,7 +196,7 @@ class BufferManager:
                         val = 10 - past_size
                         past_lba = past_lba - val
                         past_size = 10
-                        cur_size -= val
+                        cur_size = past_lba - cur_lba
                     elif total_size == 10:
                         past_size = 10
                         past_lba = cur_lba
@@ -168,9 +208,5 @@ class BufferManager:
                     ret_list.append(f"E {past_lba} {past_size}")
                     continue
 
-            else:
-                raise Exception(INVALID_COMMAND)
-        if finish_flag == False:
-            ret_list.append(f"E {cur_lba} {cur_size}")
 
         return ret_list
