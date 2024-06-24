@@ -2,10 +2,12 @@ import os
 import sys
 import importlib.util
 from constants import COMMAND_DIR_PATH, ROOT_PATH, INVALID_COMMAND
+
 sys.path.append(ROOT_PATH)
 from logger_pkg.logger import Logger
 from commands.invalid_command import InvalidCommand
 from commands.scenario_runner import ScenarioRunner
+
 
 class Shell(Logger):
     def run(self):
