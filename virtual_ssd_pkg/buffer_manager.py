@@ -207,6 +207,6 @@ class BufferManager:
                         finish_flag = True
                     ret_list.append(f"E {past_lba} {past_size}")
                     continue
-
-
+        if finish_flag == False:
+            ret_list.append(f"E {cur_lba} {cur_size}")
         return ret_list
