@@ -1,5 +1,5 @@
 import sys
-from command import CommandFactory
+from command import CommandFactory, FlushCommand
 from constants import INVALID_COMMAND
 from buffer_manager import BufferManager
 
@@ -15,9 +15,11 @@ class VirtualSSD:
     def run(self):
         args = sys.argv[1:]
         cmd = self.command_factory.create_command(args)
-        self.bm.run(cmd)
-        # TO-DO: FlushCommand 만 BufferManager 거치지 않도록 수정 필요
-        # cmd.execute(args)
+
+        if isinstance(cmd, FlushCommand):
+            cmd.execute()
+        else:
+            self.bm.run(cmd)
 
 
 if __name__ == '__main__':
@@ -25,4 +27,4 @@ if __name__ == '__main__':
     try:
         ssd.run()
     except Exception as e:
-        Logger().print(e)
+        Logger().print(str(e))
