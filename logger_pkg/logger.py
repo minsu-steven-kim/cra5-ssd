@@ -2,68 +2,45 @@ from datetime import datetime
 import inspect
 import os
 
+MAX_FILE_SIZE = 10240
+
 
 class Logger:
     def print(self, log: str):
-        now = datetime.now()
-        dateFormat = now.strftime("%y.%m.%d %H:%M")
-        method_name = inspect.currentframe().f_back.f_code.co_name
-        import os
-        from shell_pkg.commands.command import Command
-        from shell_pkg.constants import INVALID_COMMAND, SSD_FILE_PATH, RESULT_FILE_PATH
+        self.logPath = './latest.log'
+        self.displayLog(log)
+        self.saveLog(self.make_log(log))
 
-        class ReadCommand(Command):
-            def __init__(self, args):
-                if not self.check_command_length(args):
-                    raise Exception(INVALID_COMMAND)
-                self.lba = args[1]
-                self.ssd_filepath = SSD_FILE_PATH
-                self.result_filepath = RESULT_FILE_PATH
+    def get_logDate(self):
+        return datetime.now().strftime("%y.%m.%d %H:%M")
+    def get_fileDate(self):
+        return datetime.now().strftime("%y%m%d_%Hh_%Mm_%Ss")
 
-            def check_command_length(self, args):
-                if len(args) == 2:
-                    return True
-                return False
-
-            def execute(self):
-                if self.is_invalid_lba(self.lba):
-                    raise Exception(INVALID_COMMAND)
-                if not os.path.exists(self.ssd_filepath):
-                    raise FileExistsError("VIRTUAL_SSD_PATH_ERROR")
-                self.send_cmd_to_ssd()
-                self.print(self.get_result_with_ssd())
-
-            def get_result_with_ssd(self):
-                with open(self.result_filepath, 'r') as f:
-                    return f.read()
-
-            def create_command(self):
-                return f"python {self.ssd_filepath} R {self.lba}"
-
-            def send_cmd_to_ssd(self):
-                cmd = self.create_command()
-                self.run_command(cmd)
-
+    def get_methodFormat(self):
+        method_name = inspect.currentframe().f_back.f_back.f_back.f_code.co_name
         if method_name == '<module>':
             method_name = 'main'
-            class_name = os.path.basename(inspect.currentframe().f_back.f_globals["__file__"]).split('.')[0]
+            class_name = os.path.basename(inspect.currentframe().f_back.f_back.f_back.f_globals["__file__"]).split('.')[0]
         else:
             class_name = self.__class__.__name__
-        formmatedMathod = f'{class_name}.{method_name}()'
-        fomattedLog = f'[{dateFormat}] {formmatedMathod:<30} : {log}'
-        self.displayLog(log)
+        return f'{class_name}.{method_name}()'
 
-        filePath = './latest.log'
-        newPath = f'until_{now.strftime("%y%m%d_%Hh_%Mm_%Ss")}.zip'
-        if os.path.exists(filePath):
-            fileSize = os.path.getsize(filePath)
-            if fileSize >= 10240:
-                os.rename(filePath, newPath)
-        self.saveLog(filePath, fomattedLog)
+    def displayLog(self, log: str):
+        print(log)
 
-    def displayLog(self, fomattedLog: str):
-        print(fomattedLog)
+    def make_log(self, log):
+        return f'[{self.get_logDate()}] {self.get_methodFormat():<30} : {log}'
 
-    def saveLog(self, filePath, log: str):
-        with open(filePath, 'a') as f:
+    def saveLog(self, fomattedLog):
+        if os.path.exists(self.logPath):
+            if os.path.getsize(self.logPath) >= MAX_FILE_SIZE:
+                self.backup_logs()
+        self.fileWrite(fomattedLog)
+
+    def backup_logs(self):
+        newPath = f'until_{self.get_fileDate()}.zip'
+        os.rename(self.logPath, newPath)
+
+    def fileWrite(self, log: str):
+        with open(self.logPath, 'a') as f:
             f.write(log + '\n')
