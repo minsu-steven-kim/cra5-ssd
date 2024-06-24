@@ -46,20 +46,25 @@ class BufferManager:
 
         for cmd in cmd_list:
             cmd_split = cmd.split()
-            if cmd_split[0] == "W":
-                if cmd_split[1] == current_cmd.lba:
-                    FileIO(RESULT_FILE_PATH).save(cmd_split[2])
-                    return cmd_list
-            elif cmd_split[0] == "E":
-                if self.is_read_lba_in_erase_lab_range(cmd_split.lba, current_cmd.lba):
-                    FileIO(RESULT_FILE_PATH).save("0x00000000")
-                    return cmd_list
+            if self.is_read_lba_in_write_lba(cmd_split, current_cmd.lba):
+                FileIO(RESULT_FILE_PATH).save(cmd_split[2])
+                return cmd_list
+            if self.is_read_lba_in_erase_lab_range(cmd_split, current_cmd.lba):
+                FileIO(RESULT_FILE_PATH).save("0x00000000")
+                return cmd_list
 
         current_cmd.execute()
         return cmd_list
 
-    def is_read_lba_in_erase_lab_range(self, cmd_split, lba):
-        return int(lba) in range(int(cmd_split[1]), int(cmd_split[1]) + int(cmd_split[2]) + 1)
+    def is_read_lba_in_write_lba(self, cmd_split, cur_lba):
+        if cmd_split[0] != "W":
+            return False
+        return cmd_split[1] == cur_lba
+
+    def is_read_lba_in_erase_lab_range(self, cmd_split, cur_lba):
+        if cmd_split[0] != "E":
+            return False
+        return int(cur_lba) in range(int(cmd_split[1]), int(cmd_split[1]) + int(cmd_split[2]) + 1)
 
     def optimize_command_buffer_for_write(self, cmd_list, curr: WriteCommand):
         cmd_list = [CommandFactory().create_command(args.split()) for args in cmd_list]
