@@ -2,32 +2,45 @@ from datetime import datetime
 import inspect
 import os
 
+MAX_FILE_SIZE = 10240
+
 
 class Logger:
     def print(self, log: str):
-        now = datetime.now()
-        dateFormat = now.strftime("%y.%m.%d %H:%M")
-        method_name = inspect.currentframe().f_back.f_code.co_name
+        self.logPath = './latest.log'
+        self.displayLog(log)
+        self.saveLog(self.make_log(log))
+
+    def get_logDate(self):
+        return datetime.now().strftime("%y.%m.%d %H:%M")
+    def get_fileDate(self):
+        return datetime.now().strftime("%y%m%d_%Hh_%Mm_%Ss")
+
+    def get_methodFormat(self):
+        method_name = inspect.currentframe().f_back.f_back.f_back.f_code.co_name
         if method_name == '<module>':
             method_name = 'main'
-            class_name = os.path.basename(inspect.currentframe().f_back.f_globals["__file__"]).split('.')[0]
+            class_name = os.path.basename(inspect.currentframe().f_back.f_back.f_back.f_globals["__file__"]).split('.')[0]
         else:
             class_name = self.__class__.__name__
-        formmatedMathod = f'{class_name}.{method_name}()'
-        fomattedLog = f'[{dateFormat}] {formmatedMathod:<30} : {log}'
-        self.displayLog(log)
+        return f'{class_name}.{method_name}()'
 
-        filePath = './latest.log'
-        newPath = f'until_{now.strftime("%y%m%d_%Hh_%Mm_%Ss")}.zip'
-        if os.path.exists(filePath):
-            fileSize = os.path.getsize(filePath)
-            if fileSize >= 10240:
-                os.rename(filePath, newPath)
-        self.saveLog(filePath, fomattedLog)
+    def displayLog(self, log: str):
+        print(log)
 
-    def displayLog(self, fomattedLog: str):
-        print(fomattedLog)
+    def make_log(self, log):
+        return f'[{self.get_logDate()}] {self.get_methodFormat():<30} : {log}'
 
-    def saveLog(self, filePath, log: str):
-        with open(filePath, 'a') as f:
+    def saveLog(self, fomattedLog):
+        if os.path.exists(self.logPath):
+            if os.path.getsize(self.logPath) >= MAX_FILE_SIZE:
+                self.backup_logs()
+        self.fileWrite(fomattedLog)
+
+    def backup_logs(self):
+        newPath = f'until_{self.get_fileDate()}.zip'
+        os.rename(self.logPath, newPath)
+
+    def fileWrite(self, log: str):
+        with open(self.logPath, 'a') as f:
             f.write(log + '\n')
