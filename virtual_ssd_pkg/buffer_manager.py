@@ -22,12 +22,18 @@ class BufferManager:
                     self.run_flush_command()
                     cmd_list = []
 
+        cmd = self.optimize_curr_command(cmd)
         optimized_cmd_list = self.optimize_command_buffer(cmd_list, cmd)
         buffer_content = '\n'.join(optimized_cmd_list)
 
         with open(BUFFER_FILE_PATH, 'w') as f:
             f.truncate(0)
             f.write(buffer_content)
+
+    def optimize_curr_command(self, curr: Command):
+        if isinstance(curr, WriteCommand) and curr.value == '0x00000000':
+            return EraseCommand(['E', str(curr.lba), str(1)])
+        return curr
 
     def optimize_command_buffer(self, cmd_list, current_cmd: Command):
         if isinstance(current_cmd, ReadCommand):
