@@ -1,7 +1,8 @@
 import os.path
+from file_io import FileIO
 
-from command import Command, FlushCommand, ReadCommand, WriteCommand, EraseCommand
-from constants import BUFFER_FILE_PATH, MAX_CMD_BUFFER, INVALID_COMMAND
+from command import Command, FlushCommand, ReadCommand, WriteCommand, EraseCommand, CommandFactory
+from constants import BUFFER_FILE_PATH, MAX_CMD_BUFFER, INVALID_COMMAND, RESULT_FILE_PATH
 
 
 class BufferManager:
@@ -38,13 +39,75 @@ class BufferManager:
         else:
             raise Exception(INVALID_COMMAND)
 
-    def optimize_command_buffer_for_read(self, cmd_list, current_cmd: Command):
-        # TODO
-        return cmd_list + [current_cmd.serialize()]
+    def optimize_command_buffer_for_read(self, cmd_list, current_cmd: ReadCommand):
+        if len(cmd_list) == 0:
+            current_cmd.execute()
+            return cmd_list
 
-    def optimize_command_buffer_for_write(self, cmd_list, current_cmd: Command):
-        # TODO
-        return cmd_list + [current_cmd.serialize()]
+        for cmd in cmd_list:
+            cmd_split = cmd.split()
+            if self.is_read_lba_in_write_lba(cmd_split, current_cmd.lba):
+                FileIO(RESULT_FILE_PATH).save(cmd_split[2])
+                return cmd_list
+            if self.is_read_lba_in_erase_lba_range(cmd_split, current_cmd.lba):
+                FileIO(RESULT_FILE_PATH).save("0x00000000")
+                return cmd_list
+
+        current_cmd.execute()
+        return cmd_list
+
+    def is_read_lba_in_write_lba(self, cmd_split, cur_lba):
+        if cmd_split[0] != "W":
+            return False
+        return cmd_split[1] == cur_lba
+
+    def is_read_lba_in_erase_lba_range(self, cmd_split, cur_lba):
+        if cmd_split[0] != "E":
+            return False
+        return int(cur_lba) in range(int(cmd_split[1]), int(cmd_split[1]) + int(cmd_split[2]) + 1)
+
+    def optimize_command_buffer_for_write(self, cmd_list, curr: WriteCommand):
+        cmd_list = [CommandFactory().create_command(args.split()) for args in cmd_list]
+        optimized = []
+
+        def process_prev_write(before: WriteCommand):
+            if int(before.lba) == int(curr.lba):
+                return []
+            return [before]
+
+        def create_erase_command(start: int, end: int):
+            if start < end:
+                return EraseCommand(['E', str(start), str(end - start)])
+            else:
+                return None
+
+        def process_prev_erase(before: EraseCommand):
+            before_lba = int(before.lba)
+            before_size = int(before.size)
+            curr_lba = int(curr.lba)
+
+            if not before_lba <= curr_lba < (before_lba + before_size):
+                return [before]
+
+            left_erase = create_erase_command(before_lba, curr_lba)
+            right_erase = create_erase_command(curr_lba + 1, before_lba + before_size)
+
+            ret = []
+            if left_erase is not None:
+                ret.append(left_erase)
+            if right_erase is not None:
+                ret.append(right_erase)
+            return ret
+
+        for prev in cmd_list:
+            if isinstance(prev, WriteCommand):
+                optimized += process_prev_write(prev)
+            elif isinstance(prev, EraseCommand):
+                optimized += process_prev_erase(prev)
+            else:
+                optimized += [prev]
+
+        return [cmd.serialize() for cmd in optimized] + [curr.serialize()]
 
     def optimize_command_buffer_for_erase(self, cmd_list, current_cmd: Command):
         # TODO

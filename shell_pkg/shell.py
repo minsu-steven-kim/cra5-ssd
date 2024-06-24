@@ -1,7 +1,7 @@
 import os
 import sys
 import importlib.util
-from constants import COMMAND_DIR_PATH, ROOT_PATH
+from constants import COMMAND_DIR_PATH, ROOT_PATH, INVALID_COMMAND
 sys.path.append(ROOT_PATH)
 from logger_pkg.logger import Logger
 from commands.invalid_command import InvalidCommand
@@ -9,15 +9,21 @@ from commands.scenario_runner import ScenarioRunner
 
 class Shell(Logger):
     def run(self):
-        is_exit = 0
-        while not is_exit:
-            try:
-                print('> ', end='')
-                args = input().split()
-                cmd = self.determine_cmd(args)
-                is_exit = cmd.execute()
-            except Exception as e:
-                self.print(e)
+        if len(sys.argv) == 1:
+            is_exit = 0
+            while not is_exit:
+                try:
+                    print('> ', end='')
+                    args = input().split()
+                    cmd = self.determine_cmd(args)
+                    is_exit = cmd.execute()
+                except Exception as e:
+                    self.print(e)
+        elif len(sys.argv) == 2:
+            cmd = ScenarioRunner([sys.argv[1]])
+            cmd.execute()
+        else:
+            raise Exception(INVALID_COMMAND)
 
     def get_class_name(self, name: str):
         components = name.split('_')
@@ -43,12 +49,12 @@ class Shell(Logger):
         if len(args) == 0:
             return InvalidCommand()
 
-        if '.txt' in args[0]:
-            return ScenarioRunner(args)
-
         return self.get_command_module(args)
 
 
 if __name__ == '__main__':
     shell = Shell()
-    shell.run()
+    try:
+        shell.run()
+    except Exception as e:
+        Logger().print(e)
