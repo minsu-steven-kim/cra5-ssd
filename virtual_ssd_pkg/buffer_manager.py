@@ -82,13 +82,13 @@ class BufferManager:
                 past_size = int(past_cmd_args[2])
                 past_end = past_lba + past_size
 
-                # 서로 관계 없을 때
+                # 1 서로 관계 없을 때
                 if past_end < cur_lba or cur_end < past_lba:
                     ret_list.append(cmd_list[i])
                     continue
 
-                # 한 쪽이 포함될 때
-                # 현재가 과거에 완전 포함일 경우
+                # 2 한 쪽이 포함될 때
+                    # 현재가 과거에 완전 포함일 경우
                 if past_lba <= cur_lba and cur_end <= past_lba:
                     ret_list.append(cmd_list[i])
                     finish_flag = True
@@ -98,8 +98,8 @@ class BufferManager:
                 if cur_lba <= past_lba and past_end <= cur_lba:
                     continue
 
-                # 완벽히 붙을 때
-                # 과거 - 현재 순일 때
+                # 3 완벽히 붙을 때
+                    # 과거 - 현재 순일 때
                 if past_end == cur_lba:
                     if past_size + cur_size == 10:
                         past_size = 10
@@ -132,8 +132,8 @@ class BufferManager:
                     ret_list.append(f"E {past_lba} {past_size}")
                     continue
 
-                # 그 외 그냥 겹치는 곳 있을 떼
-                # 과거-(포함)-현재
+                # 4 그 외 그냥 겹치는 곳 있을 떼
+                    # 과거-(포함)-현재
                 if past_lba < cur_lba:
                     total_size = cur_lba + cur_size - past_lba
                     if total_size > 10:
