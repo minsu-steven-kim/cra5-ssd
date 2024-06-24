@@ -4,5 +4,4 @@ from shell_pkg.constants import INVALID_COMMAND
 
 class InvalidCommand(Command):
     def execute(self):
-        self.print(INVALID_COMMAND)
         return 0
