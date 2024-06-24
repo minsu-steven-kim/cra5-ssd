@@ -112,9 +112,6 @@ class BufferManager:
         cur_lba = int(current_cmd.lba)
         cur_size = int(current_cmd.size)
 
-        original_cur_lba = cur_lba
-        original_cur_end = cur_lba + cur_size
-
         ret_list = []
         erase_bit = [0] * 100
 
@@ -126,7 +123,7 @@ class BufferManager:
 
             if past_cmd_args[0] == 'W':
                 past_lba = int(past_cmd_args[1])
-                if original_cur_lba <= past_lba < original_cur_end:  # refactoring 필요
+                if cur_lba <= past_lba < cur_lba + cur_size:  # refactoring 필요
                     pass
                 else:
                     ret_list.append(cmd_list[i])
