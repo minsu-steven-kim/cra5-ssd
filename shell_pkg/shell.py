@@ -12,10 +12,13 @@ class Shell:
         if len(sys.argv) == 1:
             is_exit = 0
             while not is_exit:
-                print('> ', end='')
-                args = input().split()
-                cmd = self.determine_cmd(args)
-                is_exit = cmd.execute()
+                try:
+                    print('> ', end='')
+                    args = input().split()
+                    cmd = self.determine_cmd(args)
+                    is_exit = cmd.execute()
+                except Exception as e:
+                    Logger().print(e)
         elif len(sys.argv) == 2:
             cmd = ScenarioRunner([sys.argv[1]])
             cmd.execute()
