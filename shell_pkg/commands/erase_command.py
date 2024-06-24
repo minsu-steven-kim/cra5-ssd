@@ -1,6 +1,7 @@
 import os
 from shell_pkg.commands.command import Command
-from shell_pkg.constants import INVALID_COMMAND, SSD_FILE_PATH, MAX_ERASE_SIZE, MIN_ERASE_SIZE, MAX_SIZE_PER_COMMAND, MAX_LBA, MAX_NUM_LBA
+from shell_pkg.constants import INVALID_COMMAND, SSD_FILE_PATH, MAX_ERASE_SIZE, MIN_ERASE_SIZE, MAX_SIZE_PER_COMMAND, \
+    MAX_LBA, MAX_NUM_LBA
 
 
 class EraseCommand(Command):
@@ -17,6 +18,11 @@ class EraseCommand(Command):
         if not size.isdigit():
             return True
         if MIN_ERASE_SIZE > int(size) or MAX_ERASE_SIZE < int(size):
+            return True
+        return False
+
+    def is_invalid_sum_lba_size(self, lba, size):
+        if int(lba) + int(size) > MAX_NUM_LBA:
             return True
         return False
 
@@ -54,6 +60,8 @@ class EraseCommand(Command):
         if self.is_invalid_lba(self.__lba):
             return True
         if self.is_invalid_size(self.__size):
+            return True
+        if self.is_invalid_sum_lba_size(self.__lba, self.__size):
             return True
         return False
 
