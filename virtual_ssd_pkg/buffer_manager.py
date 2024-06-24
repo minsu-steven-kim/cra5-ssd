@@ -89,6 +89,26 @@ class BufferManager:
         return [cmd.serialize() for cmd in optimized] + [curr.serialize()]
 
     def optimize_command_buffer_for_erase(self, cmd_list, current_cmd: EraseCommand):
+        def make_one_erase_list(erase_bit, loc):
+            len = 0
+            for i in range(loc, 100):
+                if len == 10:
+                    break
+                if erase_bit[i] == 1:
+                    erase_bit[i] = 0
+                    len += 1
+                    continue
+                break
+            return erase_bit, f"E {loc} {len}"
+
+        def make_erase_list(erase_bit):
+            ret_list = []
+            for loc in range(0, 100):
+                if erase_bit[loc] == 1:
+                    erase_bit, tmp = make_one_erase_list(erase_bit, loc)
+                    ret_list.append(tmp)
+            return ret_list
+
         cur_lba = int(current_cmd.lba)
         cur_size = int(current_cmd.size)
 
@@ -96,9 +116,9 @@ class BufferManager:
         original_cur_end = cur_lba + cur_size
 
         ret_list = []
-        finish_flag = False
+        erase_bit = [0] * 100
+
         for i in range(len(cmd_list)):
-            cur_end = cur_lba + cur_size
             past_cmd = cmd_list[i]
             if past_cmd == '':
                 continue
@@ -106,107 +126,21 @@ class BufferManager:
 
             if past_cmd_args[0] == 'W':
                 past_lba = int(past_cmd_args[1])
-                if original_cur_lba <= past_lba < original_cur_end:
+                if original_cur_lba <= past_lba < original_cur_end:     # refactoring 필요
                     pass
                 else:
                     ret_list.append(cmd_list[i])
-                continue
 
-            if finish_flag:
-                ret_list.append(cmd_list[i])
-                continue
-
-            elif past_cmd_args[0] == 'E':
+            if past_cmd_args[0] == 'E':
                 past_lba = int(past_cmd_args[1])
                 past_size = int(past_cmd_args[2])
-                past_end = past_lba + past_size
+                for i in range(past_lba, past_lba + past_size):
+                    erase_bit[i] = 1
 
-                # 1 서로 관계 없을 때
-                if past_end < cur_lba or cur_end < past_lba:
-                    ret_list.append(cmd_list[i])
-                    continue
+        for i in range(cur_lba, cur_lba + cur_size):
+            erase_bit[i] = 1
 
-                # 2 한 쪽이 포함될 때
-                    # 현재가 과거에 완전 포함일 경우
-                if past_lba <= cur_lba and cur_end <= past_end:
-                    ret_list.append(cmd_list[i])
-                    finish_flag = True
-                    continue
+        ret_list += make_erase_list(erase_bit)
 
-                    # 과거가 현재에 완전 포함일 경우
-                if cur_lba <= past_lba and past_end <= cur_end:
-                    continue
 
-                # 3 완벽히 붙을 때
-                    # 과거 - 현재 순일 때
-                if past_end == cur_lba:
-                    if past_size + cur_size == 10:
-                        past_size = 10
-                        finish_flag = True
-                    elif past_size + cur_size > 10:
-                        val = 10 - past_size
-                        past_size = 10  ## update 되게 만들어야함
-                        cur_size = cur_size - val
-                        cur_lba = cur_lba + val
-                    else:
-                        past_size += cur_size
-                        finish_flag = True
-                    ret_list.append(f"E {past_lba} {past_size}")
-                    continue
-
-                    # 현재 - 과거 순일 때
-                if cur_end == past_lba:
-                    if past_size + cur_size == 10:
-                        past_size = 10
-                        past_lba -= cur_size
-                        finish_flag = True
-                    elif past_size + cur_size > 10:
-                        val = 10 - past_size
-                        past_size = 10
-                        past_lba -= val
-                        cur_size = cur_size - val
-                    else:
-                        past_lba -= cur_size
-                        past_size += cur_size
-                        finish_flag = True
-                    ret_list.append(f"E {past_lba} {past_size}")
-                    continue
-
-                # 4 그 외 그냥 겹치는 곳 있을 떼
-                    # 과거-(포함)-현재
-                if past_lba < cur_lba:
-                    total_size = cur_lba + cur_size - past_lba
-                    if total_size > 10:
-                        past_size = 10
-                        cur_size = (cur_lba + cur_size) - (past_lba + past_size)
-                        cur_lba = past_lba + past_size
-                    elif total_size == 10:
-                        past_size = 10
-                        finish_flag = True
-                    else:
-                        past_size = total_size
-                        finish_flag = True
-                    ret_list.append(f"E {past_lba} {past_size}")
-                    continue
-
-                    # 현재 - (포함) - 과거
-                if cur_lba < past_lba:
-                    total_size = past_lba + past_size - cur_lba
-                    if total_size > 10:
-                        val = 10 - past_size
-                        past_lba = past_lba - val
-                        past_size = 10
-                        cur_size = past_lba - cur_lba
-                    elif total_size == 10:
-                        past_size = 10
-                        past_lba = cur_lba
-                        finish_flag = True
-                    else:
-                        past_size = total_size
-                        past_lba = cur_lba
-                        finish_flag = True
-                    ret_list.append(f"E {past_lba} {past_size}")
-                    continue
-        if finish_flag == False:
-            ret_list.append(f"E {cur_lba} {cur_size}")
         return ret_list
