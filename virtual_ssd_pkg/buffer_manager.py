@@ -49,7 +49,7 @@ class BufferManager:
             if self.is_read_lba_in_write_lba(cmd_split, current_cmd.lba):
                 FileIO(RESULT_FILE_PATH).save(cmd_split[2])
                 return cmd_list
-            if self.is_read_lba_in_erase_lab_range(cmd_split, current_cmd.lba):
+            if self.is_read_lba_in_erase_lba_range(cmd_split, current_cmd.lba):
                 FileIO(RESULT_FILE_PATH).save("0x00000000")
                 return cmd_list
 
@@ -61,7 +61,7 @@ class BufferManager:
             return False
         return cmd_split[1] == cur_lba
 
-    def is_read_lba_in_erase_lab_range(self, cmd_split, cur_lba):
+    def is_read_lba_in_erase_lba_range(self, cmd_split, cur_lba):
         if cmd_split[0] != "E":
             return False
         return int(cur_lba) in range(int(cmd_split[1]), int(cmd_split[1]) + int(cmd_split[2]) + 1)
