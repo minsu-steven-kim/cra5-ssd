@@ -7,7 +7,7 @@ from logger_pkg.logger import Logger
 from commands.invalid_command import InvalidCommand
 from commands.scenario_runner import ScenarioRunner
 
-class Shell:
+class Shell(Logger):
     def run(self):
         is_exit = 0
         while not is_exit:
@@ -17,7 +17,7 @@ class Shell:
                 cmd = self.determine_cmd(args)
                 is_exit = cmd.execute()
             except Exception as e:
-                Logger().print(e)
+                self.print(e)
 
     def get_class_name(self, name: str):
         components = name.split('_')
