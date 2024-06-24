@@ -126,7 +126,7 @@ class BufferManager:
 
             if past_cmd_args[0] == 'W':
                 past_lba = int(past_cmd_args[1])
-                if original_cur_lba <= past_lba < original_cur_end:     # refactoring 필요
+                if original_cur_lba <= past_lba < original_cur_end:  # refactoring 필요
                     pass
                 else:
                     ret_list.append(cmd_list[i])
@@ -141,6 +141,5 @@ class BufferManager:
             erase_bit[i] = 1
 
         ret_list += make_erase_list(erase_bit)
-
 
         return ret_list
