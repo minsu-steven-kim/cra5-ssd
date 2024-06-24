@@ -1,7 +1,8 @@
 import os.path
+from file_io import FileIO
 
 from command import Command, FlushCommand, ReadCommand, WriteCommand, EraseCommand, CommandFactory
-from constants import BUFFER_FILE_PATH, MAX_CMD_BUFFER, INVALID_COMMAND
+from constants import BUFFER_FILE_PATH, MAX_CMD_BUFFER, INVALID_COMMAND, RESULT_FILE_PATH
 
 
 class BufferManager:
@@ -38,9 +39,27 @@ class BufferManager:
         else:
             raise Exception(INVALID_COMMAND)
 
-    def optimize_command_buffer_for_read(self, cmd_list, current_cmd: Command):
-        # TODO
-        return cmd_list + [current_cmd.serialize()]
+    def optimize_command_buffer_for_read(self, cmd_list, current_cmd: ReadCommand):
+        if len(cmd_list) == 0:
+            current_cmd.execute()
+            return cmd_list
+
+        for cmd in cmd_list:
+            cmd_split = cmd.split()
+            if cmd_split[0] == "W":
+                if cmd_split[1] == current_cmd.lba:
+                    FileIO(RESULT_FILE_PATH).save(cmd_split[2])
+                    return cmd_list
+            elif cmd_split[0] == "E":
+                if self.is_read_lba_in_erase_lab_range(cmd_split.lba, current_cmd.lba):
+                    FileIO(RESULT_FILE_PATH).save("0x00000000")
+                    return cmd_list
+
+        current_cmd.execute()
+        return cmd_list
+
+    def is_read_lba_in_erase_lab_range(self, cmd_split, lba):
+        return int(lba) in range(int(cmd_split[1]), int(cmd_split[1]) + int(cmd_split[2]) + 1)
 
     def optimize_command_buffer_for_write(self, cmd_list, curr: WriteCommand):
         cmd_list = [CommandFactory().create_command(args.split()) for args in cmd_list]

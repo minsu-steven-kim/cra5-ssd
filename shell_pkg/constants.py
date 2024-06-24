@@ -1,3 +1,5 @@
+import os
+
 INVALID_COMMAND = 'INVALID COMMAND'
 ROOT_PATH = f'{__file__}/../..'
 SSD_FILE_PATH = f'{ROOT_PATH}/virtual_ssd_pkg/ssd.py'
@@ -21,6 +23,8 @@ HELP_MESSAGE = """============================== Command Guide =================
 : see the command guide."""
 MIN_LBA = 0
 MAX_LBA = 99
+MAX_NUM_LBA = 100
 MIN_ERASE_SIZE = 1
 MAX_ERASE_SIZE = 100
 MAX_SIZE_PER_COMMAND = 10
+COMMAND_DIR_PATH = os.path.join(os.path.dirname(f'{__file__}'), 'commands')
