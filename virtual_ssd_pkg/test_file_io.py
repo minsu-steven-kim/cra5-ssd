@@ -1,5 +1,5 @@
 from unittest import TestCase
-from virtual_ssd_pkg.file_io import FileIO
+from file_io import FileIO
 
 FAKE_FILENAME = 'virtual_ssd_pkg/nand.txt'
 

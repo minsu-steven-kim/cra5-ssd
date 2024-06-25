@@ -1,11 +1,12 @@
 import sys
-from command import CommandFactory, FlushCommand
-from constants import INVALID_COMMAND
-from buffer_manager import BufferManager
 
+from buffer_manager import BufferManager
+from command import CommandFactory, FlushCommand
 from constants import ROOT_PATH
+
 sys.path.append(ROOT_PATH)
 from logger_pkg.logger import Logger
+
 
 class VirtualSSD:
     def __init__(self):

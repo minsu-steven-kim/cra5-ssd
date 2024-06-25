@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from virtual_ssd_pkg.command import WriteCommand, ReadCommand
+from command import WriteCommand, ReadCommand
 
 FAKE_DATA = '0x12345678'
 line_len = 11

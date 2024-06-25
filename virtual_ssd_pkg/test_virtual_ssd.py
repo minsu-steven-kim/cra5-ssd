@@ -1,10 +1,9 @@
-import os
 import subprocess
 from unittest import TestCase
 
 from constants import INVALID_COMMAND, SSD_FILE_PATH, RESULT_FILE_PATH, NAND_FILE_PATH
-from ssd import VirtualSSD
 from file_io import FileIO
+from ssd import VirtualSSD
 
 line_len = 11
 FAKE_DATA = ('0x12345678')
