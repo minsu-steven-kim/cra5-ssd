@@ -73,7 +73,7 @@ class BufferManager:
     def is_read_lba_in_erase_lba_range(self, cmd_split, cur_lba):
         if cmd_split[0] != "E":
             return False
-        return int(cur_lba) in range(int(cmd_split[1]), int(cmd_split[1]) + int(cmd_split[2]) + 1)
+        return int(cur_lba) in range(int(cmd_split[1]), int(cmd_split[1]) + int(cmd_split[2]))
 
     def optimize_command_buffer_for_write(self, cmd_list, curr: WriteCommand):
         cmd_list = [CommandFactory().create_command(args.split()) for args in cmd_list]
