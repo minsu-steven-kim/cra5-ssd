@@ -76,7 +76,7 @@ class BufferManager:
         return int(cur_lba) in range(int(cmd_split[1]), int(cmd_split[1]) + int(cmd_split[2]))
 
     def optimize_command_buffer_for_write(self, cmd_list, curr: WriteCommand):
-        cmd_list = [CommandFactory().create_command(args.split()) for args in cmd_list]
+        cmd_list = [CommandFactory.get_instance().create_command(args.split()) for args in cmd_list]
         optimized = []
 
         def process_prev_write(before: WriteCommand):

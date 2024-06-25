@@ -33,7 +33,7 @@ class CommandFactory:
 
 class Command(ABC):
     def __init__(self):
-        self.command_factory = CommandFactory()
+        self.command_factory = CommandFactory.get_instance()
         self.nand_file = NAND_FILE_PATH
         self.result_file = RESULT_FILE_PATH
         self.buffer_file = BUFFER_FILE_PATH

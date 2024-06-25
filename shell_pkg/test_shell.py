@@ -144,7 +144,7 @@ class TestShell(TestCase):
         self.assertEqual(INVALID_COMMAND, str(context.exception))
 
     @patch.object(WriteCommand, 'execute')
-    def test_fullwirte_with_mocked_write_commands(self, mock_execute):
+    def test_fullwrite_with_mocked_write_commands(self, mock_execute):
         fullwrite_command = FullwriteCommand(["fullwrite", VALID_VALUE])
         fullwrite_command.execute()
         self.assertEqual(mock_execute.call_count, 100)
