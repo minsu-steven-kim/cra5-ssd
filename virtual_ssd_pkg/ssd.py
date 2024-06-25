@@ -11,7 +11,7 @@ from logger_pkg.logger import Logger
 class VirtualSSD:
     def __init__(self):
         self.bm = BufferManager()
-        self.command_factory = CommandFactory()
+        self.command_factory = CommandFactory.get_instance()
 
     def run(self):
         args = sys.argv[1:]
